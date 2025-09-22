@@ -5,11 +5,20 @@
     <link rel="stylesheet"   href="/src/main.css" />
     <script type="module" src="/src/main.ts"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Matter</title>
+    <title>Pinball</title>
   </head>
   <body>
     <div id="app">
+      <div id="scoreboard">
+        <div id="score">0 <br />0</div>
+        <div id="balls">BALLS <br />3</div>
+      </div>
+      <div id="restart">
+        GAME OVER<br />
+        <a href="javascript:void(0)">Restart</a>
+      </div>
       <canvas id="canvas" width="600" height="800"></canvas>
     </div>
+
   </body>
 </html>
