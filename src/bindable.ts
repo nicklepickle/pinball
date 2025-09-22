@@ -8,7 +8,7 @@ class Bindable {
 
     set value(v: any) {
         this._value = v;
-        this._events.dispatchEvent(new Event('change'));
+        this.dispatchEvent(new Event('change'));
     }
 
     get value() {
@@ -18,6 +18,15 @@ class Bindable {
     addEventListener(type: string, listener:EventListenerOrEventListenerObject, options:any=null) {
         this._events.addEventListener(type,listener,options)
     }
+
+    dispatchEvent(event: Event) {
+        this._events.dispatchEvent(event);
+    }
+
+    removeEventListener(type: string, listener:EventListenerOrEventListenerObject, options:any=null) {
+        this._events.removeEventListener(type, listener, options)
+    }
+
 }
 
 export default Bindable;

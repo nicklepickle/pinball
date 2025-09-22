@@ -1,9 +1,6 @@
 import decomp from 'poly-decomp';
+import Bindable from './bindable.ts';
 import { Engine, Render, Runner, Bodies, Composite, Common, Body, Events, Collision, Vector} from 'matter-js';
-import Bindable from '/src/bindable.ts';
-
-
-
 
 
 let forces: Matter.Vector[] = []; // forces that need to be applied
@@ -36,8 +33,56 @@ function getArchVerts(innerRadius: number, outerRadius: number, angle: number = 
 
     return [archVerts];
 }
+/*
+class PinBall {
+    engine: Engine = Engine.create();
+
+    // html elements
+    $canvas: HTMLCanvasElement = document.getElementById('canvas') as HTMLCanvasElement; 
+    $score: HTMLElement = document.getElementById('score') as HTMLElement;
+    $balls: HTMLElement = document.getElementById('balls') as HTMLElement;
+    $restart: HTMLElement = document.getElementById('restart') as HTMLElement;
+    
+    // game values
+    balls = new Bindable(3);
+    score = new Bindable(0);
+    high = new Bindable(0);    
+    downTime: Date = new Date();
+    onSpring: boolean = false;
+    forces: Matter.Vector[] = []; // forces that need to be applied
 
 
+    constructor() {
+        Common.setDecomp(decomp) // use poly-decomp for concave bodies
+        const render: Render = Render.create({
+            canvas: this.$canvas,
+            engine: this.engine,
+        });
+
+        // set the canvas size AFTER createding Render
+        this.$canvas.width = 600;
+        this.$canvas.height = 900;
+
+        this.registerEvents()
+
+        // run the renderer
+        Render.run(render);
+
+        // create runner
+        const runner: Runner = Runner.create();
+        Runner.run(runner, this.engine);
+    }
+
+    registerEvents() {
+        
+    }
+
+    loadTable() {
+
+    }
+
+}
+*/
 Common.setDecomp(decomp) // use poly-decomp for concave bodies
 
 window.addEventListener('load', () => {
@@ -48,8 +93,14 @@ const $balls: HTMLElement = document.getElementById('balls') as HTMLElement;
 const $restart: HTMLElement = document.getElementById('restart') as HTMLElement;
 
 
+const balls = new Bindable(3);
+const score = new Bindable(0);
+const high = new Bindable(0);
 
 var engine: Engine = Engine.create();
+var downTime: Date;
+var onSpring = false;
+
 engine.gravity = {x:0,y:.00038,scale:1}
 var render: Render = Render.create({
     canvas: $canvas,
@@ -63,7 +114,7 @@ $canvas.height = 900;
 /*---------------- move to scene function -------------- */
 
 var leftBlock = Bodies.trapezoid(24,420,140,30,Math.PI/5, { isStatic: true, angle: Math.PI/2 });
-var rightBlock = Bodies.trapezoid(520,420,140,30,Math.PI/5, { isStatic: true, angle: -Math.PI/2 });
+var rightBlock = Bodies.trapezoid(515,420,140,30,Math.PI/5, { isStatic: true, angle: -Math.PI/2 });
 
 var leftLane = Bodies.fromVertices(82,700,[[{x:0,y:0},{x:0,y:110},{x:90,y:136}]], {isStatic: true})
 var rightLane = Bodies.fromVertices(458,700,[[{x:0,y:0},{x:0,y:110},{x:-90,y:136}]], {isStatic: true})
@@ -71,27 +122,27 @@ var rightLane = Bodies.fromVertices(458,700,[[{x:0,y:0},{x:0,y:110},{x:-90,y:136
 var leftEdge: Body  = Bodies.rectangle(-10, 550, 40, 700, { isStatic: true });
 var rightEdge: Body  = Bodies.rectangle(610, 550, 40, 700, { isStatic: true });
 
-var laneBoundry: Body  = Bodies.rectangle(543, 600, 20, 600, { isStatic: true });
-var laneCap:  Body  = Bodies.circle(543, 300, 10, { isStatic: true });
+var laneBoundry: Body  = Bodies.rectangle(543, 600, 30, 600, { isStatic: true });
+var laneCap:  Body  = Bodies.circle(543, 300, 15, { isStatic: true });
 
-var spring: Body  = Bodies.rectangle(572, 860, 30, 30, { isStatic: true });
+var spring: Body  = Bodies.rectangle(574, 860, 30, 30, { isStatic: true });
 
-var leftRamp: Body  = Bodies.rectangle(90, 800, 170, 20, { isStatic: true,  angle: Math.PI * .08});
-var rightRamp: Body  = Bodies.rectangle(465, 800, 170, 20, { isStatic: true,  angle: Math.PI * -.08 });
+var leftRamp: Body  = Bodies.rectangle(88, 804, 170, 30, { isStatic: true,  angle: Math.PI * .08});
+var rightRamp: Body  = Bodies.rectangle(468, 804, 170, 30, { isStatic: true,  angle: Math.PI * -.08 });
 
-var leftCorner = Bodies.fromVertices(14,770,[[{x:0,y:0},{x:0,y:20},{x:15,y:20}]], {isStatic: true})
-var rightCorner = Bodies.fromVertices(528,772,[[{x:0,y:0},{x:0,y:20},{x:-15,y:20}]], {isStatic: true})
+var leftCorner: Body = Bodies.fromVertices(16,766,[[{x:0,y:0},{x:0,y:30},{x:20,y:30}]], {isStatic: true})
+var rightCorner: Body = Bodies.fromVertices(522,770,[[{x:0,y:0},{x:0,y:30},{x:-20,y:30}]], {isStatic: true})
 
-var arch = Bodies.fromVertices(320,100,getArchVerts(290,360), { isStatic: true });
-var oob = Bodies.rectangle(300,910,600,10, { isStatic: true, isSensor:true })
+var arch: Body = Bodies.fromVertices(320,100,getArchVerts(290,360), { isStatic: true });
+var oob: Body = Bodies.rectangle(300,910,600,10, { isStatic: true, isSensor:true })
 
 
 var leftFlipper: Body = Bodies.fromVertices(204, 827, [[{x:0,y:0},{x:80, y:20},{x:80,y:24},{x:0,y:24}]],{isStatic:true})
 var rightFlipper: Body = Bodies.fromVertices(351, 827, [[{x:0,y:0},{x:-80, y:20},{x:-80,y:24},{x:0,y:24}]],{isStatic:true,})
 
-var bouncer1: Matter.Body = Bodies.circle(300, 330, 40, {isStatic: true, label:'bouncer'  })
-var bouncer2: Matter.Body = Bodies.circle(220, 200, 40, {isStatic: true, label:'bouncer'  })
-var bouncer3: Matter.Body = Bodies.circle(380, 200, 40, {isStatic: true, label:'bouncer'  })
+var bouncer1: Body = Bodies.circle(300, 330, 40, {isStatic: true, label:'bouncer'  })
+var bouncer2: Body = Bodies.circle(220, 200, 40, {isStatic: true, label:'bouncer'  })
+var bouncer3: Body = Bodies.circle(380, 200, 40, {isStatic: true, label:'bouncer'  })
 
 var bumper1: Body  = Bodies.rectangle(80, 670, 20, 50, { isStatic: true, label:'bumper', angle: Math.PI * .81});
 var bumper2: Body  = Bodies.rectangle(110, 715, 20, 50, { isStatic: true, label:'bumper', angle: Math.PI * .81});
@@ -100,10 +151,10 @@ var bumper3: Body  = Bodies.rectangle(460, 670, 20, 50, { isStatic: true, label:
 var bumper4: Body  = Bodies.rectangle(430, 715, 20, 50, { isStatic: true, label:'bumper', angle: Math.PI * .19});
 
 var bumper5: Body  = Bodies.rectangle(36,420, 20, 50, { isStatic: true, label:'bumper', angle: -Math.PI});
-var bumper6: Body  = Bodies.rectangle(508,420, 20, 50, { isStatic: true, label:'bumper', angle: 0 });
+var bumper6: Body  = Bodies.rectangle(503,420, 20, 50, { isStatic: true, label:'bumper', angle: 0 });
 
 
-var ball: Matter.Body = Bodies.circle(572, 700, 14, {restitution:.3  })
+var ball: Body = Bodies.circle(572, 700, 14, {restitution:.3  })
 
 
 // add all of the bodies to the world
@@ -114,12 +165,7 @@ Composite.add(engine.world, [spring, leftRamp, rightRamp, arch, leftFlipper, rig
 /* ----------------------------------------------------- */
 
 
-var downTime: Date;
-var onSpring = false;
 
-const balls = new Bindable(3);
-const score = new Bindable(0);
-const high = new Bindable(0);
 
 balls.addEventListener('change',() => {
     $balls.innerHTML='BALLS<br />' + balls.value;
@@ -244,10 +290,11 @@ document.querySelector('#restart a')?.addEventListener('click', () => {
     Body.setPosition(ball, {x:572, y:700})
 })
 
-// run the renderer
-Render.run(render);
+        // run the renderer
+        Render.run(render);
 
-// create runner
-var runner: Runner = Runner.create();
-Runner.run(runner, engine);
+        // create runner
+        const runner: Runner = Runner.create();
+        Runner.run(runner, engine);
+
 })
