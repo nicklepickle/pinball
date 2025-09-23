@@ -113,8 +113,7 @@ class PinBall {
                 var y = -Math.min((new Date().getTime()- this.downTime.getTime()) / 5000, .1);
                 var force: Matter.Vector = {x:x, y:y};
                 Body.applyForce(this.ball.body,this.ball.body.position,force)
-
-                
+          
                 this.onSpring = false;
             }
 
@@ -180,6 +179,13 @@ class PinBall {
                 else if (bodyA == this.ball.body  && bodyB.label== 'bumper') {
                     this.ball.launch(bodyB.position, .03, bodyB.angle);
                     this.score.value+=20;
+                }
+
+                if (bodyB == this.ball.body  && bodyA.label == 'target') {
+                   
+                }
+                else if (bodyA == this.ball.body  && bodyB.label== 'target') {
+
                 }
             
             }
@@ -259,7 +265,16 @@ class PinBall {
             Bodies.rectangle(430, 715, 20, 50, { isStatic: true, label:'bumper', angle: Math.PI * .19}),
 
             Bodies.rectangle(36,420, 20, 50, { isStatic: true, label:'bumper', angle: -Math.PI}),
-            Bodies.rectangle(503,420, 20, 50, { isStatic: true, label:'bumper', angle: 0 })
+            Bodies.rectangle(503,420, 20, 50, { isStatic: true, label:'bumper', angle: 0 }),
+            
+            // targets
+            Bodies.circle(250, 500, 14, {isStatic: true, isSensor:true, label:'target'}),
+            Bodies.circle(250, 550, 14, {isStatic: true, isSensor:true, label:'target'}),
+            Bodies.circle(250, 600, 14, {isStatic: true, isSensor:true, label:'target'}),
+
+            Bodies.circle(350, 500, 14, {isStatic: true, isSensor:true, label:'target'}),
+            Bodies.circle(350, 550, 14, {isStatic: true, isSensor:true, label:'target'}),
+            Bodies.circle(350, 600, 14, {isStatic: true, isSensor:true, label:'target'}),
         ]
 
         return bodies;
@@ -268,8 +283,10 @@ class PinBall {
     run() {
         const render: Render = Render.create({
             canvas: this.$canvas,
-            engine: this.engine,
+            engine: this.engine
         });
+
+        render.options = {showAngleIndicator:true };
 
         // set the canvas size AFTER createding Render
         this.$canvas.width = 600;
