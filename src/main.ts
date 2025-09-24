@@ -3,18 +3,12 @@ import PinBall from './pinball.ts';
 
 window.addEventListener('load', () => {
     const game = new PinBall();
-
     const $score: HTMLElement = document.getElementById('score') as HTMLElement;
     const $balls: HTMLElement = document.getElementById('balls') as HTMLElement;
     const $restart: HTMLElement = document.getElementById('restart') as HTMLElement;
 
-    let c = Cookie.getCookie('_ps_pb')
-    if (c) {
-        game.high.value = JSON.parse(c).high;
-    }
-
     game.balls.addEventListener('change',() => {
-        $balls.innerHTML='BALLS<br />' + game.balls.value;
+        $balls.innerHTML=game.balls.value + ' BALLS';
     })
 
     game.score.addEventListener('change',() => {
@@ -35,6 +29,19 @@ window.addEventListener('load', () => {
     document.querySelector('#restart a')?.addEventListener('click', () => {
         game.restart();
     })
+
+    //debug
+    game.$canvas.addEventListener('click', (e) => {
+        if (e.shiftKey) {
+            game.ball.reset()
+            game.ball.setPosition(e.clientX, e.clientY);
+        }
+    })
+
+    let c = Cookie.getCookie('_ps_pb')
+    if (c) {
+        game.high.value = JSON.parse(c).high;
+    }
     game.run();
 })
 

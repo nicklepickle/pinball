@@ -12,6 +12,10 @@ class Ball {
         Body.setVelocity(this.body, {x:0, y:0});
         Body.setPosition(this.body, this.init);
     }
+    setPosition(x:number,y:number) {
+        Body.setVelocity(this.body, {x:0, y:0});
+        Body.setPosition(this.body, {x:x, y:y});
+    }
     launch(from: Vector, velocity: number, angle:number=-999) {
         // if an angle wasn't passed use the angle to the "from" loacation
         if (angle == -999) {
@@ -45,7 +49,8 @@ class PinBall {
     leftFlipper: Body = Bodies.fromVertices(204, 827, [[{x:0,y:0},{x:80, y:20},{x:80,y:24},{x:0,y:24}]],{isStatic:true})
     rightFlipper: Body = Bodies.fromVertices(351, 827, [[{x:0,y:0},{x:-80, y:20},{x:-80,y:24},{x:0,y:24}]],{isStatic:true,})
     oob: Body = Bodies.rectangle(300,930,2000,100, { isStatic: true, isSensor:true })
-    spring: Body  = Bodies.rectangle(574, 860, 30, 30, { isStatic: true });
+    spring: Body  = Bodies.rectangle(574, 863, 30, 30, { isStatic: true });
+    targetsHit: Body[] = [];
 
     constructor() {
         Common.setDecomp(decomp) // use poly-decomp for concave bodies
@@ -65,6 +70,18 @@ class PinBall {
 
     }
 
+    hitTarget(body:Body) {
+        body.render.fillStyle = '#EEC'
+        this.targetsHit.push(body);
+        if (this.targetsHit.length == 8) {
+            for(var t of this.targetsHit) {
+                t.render.fillStyle = '#111'
+            }
+            this.targetsHit = [];
+            this.score.value += 1000;
+        }
+    }
+
     registerEvents() {
 
         document.addEventListener('mousedown', () => {
@@ -78,10 +95,10 @@ class PinBall {
                     Body.rotate(this.rightFlipper, Math.PI * .15);
                 }
                 if (Collision.collides(this.leftFlipper, this.ball.body)) {
-                    this.ball.launch(this.leftFlipper.position,.06)
+                    this.ball.launch(this.leftFlipper.position,.05)
                 }
                 else if (Collision.collides(this.rightFlipper, this.ball.body)) {
-                    this.ball.launch(this.rightFlipper.position,.06)
+                    this.ball.launch(this.rightFlipper.position,.05)
                 }
             }
         })
@@ -153,10 +170,15 @@ class PinBall {
                 }
 
                 if (bodyB == this.ball.body  && bodyA.label == 'target') {
-                   
+                   if (this.targetsHit.find((b) => b == bodyA) == undefined) {
+                        this.hitTarget(bodyA)
+
+                   }
                 }
                 else if (bodyA == this.ball.body  && bodyB.label== 'target') {
-
+                   if (this.targetsHit.find((b) => b == bodyB) == undefined) {
+                        this.hitTarget(bodyB)
+                   }
                 }
             
             }
@@ -180,15 +202,15 @@ class PinBall {
         function getArchVerts(innerRadius: number, outerRadius: number, angle: number = 0): Matter.Vector[][]  {
             var archVerts = []
             for(var a=0+angle; a<Math.PI+angle; a+=.2) {
-            var x = -Math.round(outerRadius*Math.cos(a))
-            var y = -Math.round(outerRadius*Math.sin(a))
-            archVerts.push({x:x,y:y})
+                var x = -Math.round(outerRadius*Math.cos(a))
+                var y = -Math.round(outerRadius*Math.sin(a))
+                archVerts.push({x:x,y:y})
             }
 
             for(var a=Math.PI+angle; a>0+angle; a-=.2) {
-            var x = -Math.round(innerRadius*Math.cos(a))
-            var y = -Math.round(innerRadius*Math.sin(a))
-            archVerts.push({x:x,y:y})
+                var x = -Math.round(innerRadius*Math.cos(a))
+                var y = -Math.round(innerRadius*Math.sin(a))
+                archVerts.push({x:x,y:y})
             }
 
             return [archVerts];
@@ -223,11 +245,11 @@ class PinBall {
             //top arch
             Bodies.fromVertices(320,100,getArchVerts(290,360), { isStatic: true }),
             // bottom bouncer
-            Bodies.circle(300, 330, 40, {isStatic: true, label:'bouncer'}),
+            Bodies.circle(290, 340, 40, {isStatic: true, label:'bouncer'}),
             // left bouncer
-            Bodies.circle(220, 200, 40, {isStatic: true, label:'bouncer'}),
+            Bodies.circle(210, 210, 40, {isStatic: true, label:'bouncer'}),
             // right bouncer
-            Bodies.circle(380, 200, 40, {isStatic: true, label:'bouncer'}),
+            Bodies.circle(370, 210, 40, {isStatic: true, label:'bouncer'}),
             // bumpers
             Bodies.rectangle(80, 670, 20, 50, { isStatic: true, label:'bumper', angle: Math.PI * .81}),
             Bodies.rectangle(110, 715, 20, 50, { isStatic: true, label:'bumper', angle: Math.PI * .81}),
@@ -238,14 +260,19 @@ class PinBall {
             Bodies.rectangle(36,420, 20, 50, { isStatic: true, label:'bumper', angle: -Math.PI}),
             Bodies.rectangle(503,420, 20, 50, { isStatic: true, label:'bumper', angle: 0 }),
             
-            // targets
-            Bodies.circle(250, 500, 14, {isStatic: true, isSensor:true, label:'target'}),
-            Bodies.circle(250, 550, 14, {isStatic: true, isSensor:true, label:'target'}),
-            Bodies.circle(250, 600, 14, {isStatic: true, isSensor:true, label:'target'}),
 
-            Bodies.circle(350, 500, 14, {isStatic: true, isSensor:true, label:'target'}),
-            Bodies.circle(350, 550, 14, {isStatic: true, isSensor:true, label:'target'}),
-            Bodies.circle(350, 600, 14, {isStatic: true, isSensor:true, label:'target'}),
+            // targets
+            Bodies.circle(100, 200, 10, {isStatic: true, isSensor:true, label:'target'}),
+            Bodies.circle(135, 150, 10, {isStatic: true, isSensor:true, label:'target'}),
+            
+            Bodies.circle(190, 110, 10, {isStatic: true, isSensor:true, label:'target'}),
+            Bodies.circle(255, 90, 10, {isStatic: true, isSensor:true, label:'target'}),
+
+            Bodies.circle(325, 90, 10, {isStatic: true, isSensor:true, label:'target'}),
+            Bodies.circle(390, 110, 10, {isStatic: true, isSensor:true, label:'target'}),
+            
+            Bodies.circle(445, 150, 10, {isStatic: true, isSensor:true, label:'target'}),
+            Bodies.circle(480, 200, 10, {isStatic: true, isSensor:true, label:'target'}),
         ]
 
         return bodies;
@@ -272,6 +299,11 @@ class PinBall {
         this.balls.value = 3;
         this.ball.reset();
         this.over.value = false;
+        for(var t of this.targetsHit) {
+            t.render.fillStyle = '#111'
+        }
+        this.targetsHit = [];
+
     }
 
 }
