@@ -230,9 +230,9 @@ class PinBall {
             //right block
             Bodies.trapezoid(515,420,140,30,Math.PI/5, { isStatic: true, angle: -Math.PI/2 }),
             //left lane
-            Bodies.fromVertices(82,700,[[{x:0,y:0},{x:0,y:110},{x:90,y:136}]], {isStatic: true}),
+            Bodies.fromVertices(92,690,[[{x:0,y:0},{x:0,y:140},{x:110,y:166}]], {isStatic: true}),
             //right lane
-            Bodies.fromVertices(458,700,[[{x:0,y:0},{x:0,y:110},{x:-90,y:136}]], {isStatic: true}),
+            Bodies.fromVertices(448,690,[[{x:0,y:0},{x:0,y:140},{x:-100,y:166}]], {isStatic: true}),
             //left edge
             Bodies.rectangle(-10, 550, 40, 700, { isStatic: true }),
             //right edge
@@ -257,16 +257,16 @@ class PinBall {
             Bodies.circle(210, 210, 40, {isStatic: true, label:'bouncer'}),
             // right bouncer
             Bodies.circle(370, 210, 40, {isStatic: true, label:'bouncer'}),
-            // bumpers
-            Bodies.rectangle(80, 670, 20, 50, { isStatic: true, label:'bumper', angle: Math.PI * .81}),
-            Bodies.rectangle(110, 715, 20, 50, { isStatic: true, label:'bumper', angle: Math.PI * .81}),
 
-            Bodies.rectangle(460, 670, 20, 50, { isStatic: true, label:'bumper', angle: Math.PI * .19}),
-            Bodies.rectangle(430, 715, 20, 50, { isStatic: true, label:'bumper', angle: Math.PI * .19}),
+            Bodies.rectangle(280, 550, 30, 30, {isStatic: true, label:'bouncer', angle:Math.PI/4}),
 
+
+            // upper bumpers
+            Bodies.rectangle(110, 680, 20, 150, { isStatic: true, label:'bumper', angle: Math.PI * .815}),
+            Bodies.rectangle(432, 680, 20, 150, { isStatic: true, label:'bumper', angle: Math.PI * .175}),
+            // lower bumpers
             Bodies.rectangle(36,420, 20, 50, { isStatic: true, label:'bumper', angle: -Math.PI}),
             Bodies.rectangle(503,420, 20, 50, { isStatic: true, label:'bumper', angle: 0 }),
-            
 
             // targets (left to right)
             Bodies.circle(100, 200, 10, {isStatic: true, isSensor:true, label:'target'}),
