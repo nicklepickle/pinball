@@ -9,8 +9,7 @@ class Ball {
     body: Body = Bodies.circle(this.init.x, this.init.y, 14, {restitution:.3  })
     forces: Matter.Vector[] = []; // forces that need to be applied
     reset() {
-        Body.setVelocity(this.body, {x:0, y:0});
-        Body.setPosition(this.body, this.init);
+        this.setPosition(this.init.x,this.init.y);
     }
     setPosition(x:number,y:number) {
         Body.setVelocity(this.body, {x:0, y:0});
@@ -40,13 +39,14 @@ class PinBall {
     score = new Bindable(0);
     high = new Bindable(0);    
     over = new Bindable(false);
+    bonus = new Bindable(10000) // score for extra ball
     downTime: Date = new Date();
     onSpring: boolean = false;
     forces: Matter.Vector[] = []; // forces that need to be applied
 
     // objects
     ball: Ball = new Ball();
-    leftFlipper: Body = Bodies.fromVertices(204, 827, [[{x:0,y:0},{x:80, y:20},{x:80,y:24},{x:0,y:24}]],{isStatic:true})
+    leftFlipper: Body = Bodies.fromVertices(205, 827, [[{x:0,y:0},{x:80, y:20},{x:80,y:24},{x:0,y:24}]],{isStatic:true})
     rightFlipper: Body = Bodies.fromVertices(351, 827, [[{x:0,y:0},{x:-80, y:20},{x:-80,y:24},{x:0,y:24}]],{isStatic:true,})
     oob: Body = Bodies.rectangle(300,930,2000,100, { isStatic: true, isSensor:true })
     spring: Body  = Bodies.rectangle(574, 863, 30, 30, { isStatic: true });
@@ -196,6 +196,13 @@ class PinBall {
             }
         });
 
+        this.score.addEventListener('change', ()=> {
+            if (this.score.value >= this.bonus.value) {
+                this.bonus.value += 10000;
+                this.balls.value++;
+            }
+        });
+
     }
 
     create(): Body[] {
@@ -261,7 +268,7 @@ class PinBall {
             Bodies.rectangle(503,420, 20, 50, { isStatic: true, label:'bumper', angle: 0 }),
             
 
-            // targets
+            // targets (left to right)
             Bodies.circle(100, 200, 10, {isStatic: true, isSensor:true, label:'target'}),
             Bodies.circle(135, 150, 10, {isStatic: true, isSensor:true, label:'target'}),
             
