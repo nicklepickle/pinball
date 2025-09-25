@@ -43,6 +43,8 @@ class PinBall {
     downTime: Date = new Date();
     onSpring: boolean = false;
     forces: Matter.Vector[] = []; // forces that need to be applied
+    batteryLevel: number = 10;
+    batteryMax: number = 500;
 
     // objects
     ball: Ball = new Ball();
@@ -151,7 +153,7 @@ class PinBall {
                     }
                 } 
                 
-                if (bodyB == this.ball.body && bodyA.label == 'bouncer') {
+                else if (bodyB == this.ball.body && bodyA.label == 'bouncer') {
                     this.ball.launch(bodyA.position, .03);
                     this.score.value+=100;
                 }
@@ -160,7 +162,7 @@ class PinBall {
                     this.score.value+=100;
                 }
 
-                if (bodyB == this.ball.body  && bodyA.label == 'bumper') {
+                else if (bodyB == this.ball.body  && bodyA.label == 'bumper') {
                     this.ball.launch(bodyA.position, .03, bodyA.angle);
                     this.score.value+=20;
                 }
@@ -169,7 +171,7 @@ class PinBall {
                     this.score.value+=20;
                 }
 
-                if (bodyB == this.ball.body  && bodyA.label == 'target') {
+                else if (bodyB == this.ball.body  && bodyA.label == 'target') {
                    if (this.targetsHit.find((b) => b == bodyA) == undefined) {
                         this.hitTarget(bodyA)
 
@@ -179,6 +181,23 @@ class PinBall {
                    if (this.targetsHit.find((b) => b == bodyB) == undefined) {
                         this.hitTarget(bodyB)
                    }
+                }
+
+                else if (bodyB == this.ball.body  && bodyA.label == 'battery') {
+                    this.ball.launch(bodyA.position, .03);
+                    if (this.batteryLevel < 200) {
+                        this.batteryLevel += 10;
+                    }        
+
+                    this.score.value += this.batteryLevel;
+                }
+                else if (bodyA == this.ball.body  && bodyB.label== 'battery') {
+                    this.ball.launch(bodyB.position, .03);
+                    if (this.batteryLevel < 200) {
+                        this.batteryLevel += 10;
+                    }        
+
+                    this.score.value += this.batteryLevel;
                 }
             
             }
@@ -258,7 +277,10 @@ class PinBall {
             // right bouncer
             Bodies.circle(370, 210, 40, {isStatic: true, label:'bouncer'}),
 
-            Bodies.rectangle(280, 550, 30, 30, {isStatic: true, label:'bouncer', angle:Math.PI/4}),
+            // battery
+            Bodies.circle(280, 535, 15, {isStatic: true, label:'battery'}),
+            Bodies.rectangle(280, 550, 30, 30, {isStatic: true, label:'battery'}),
+            Bodies.circle(280, 565, 15, {isStatic: true, label:'battery'}),
 
 
             // upper bumpers
@@ -310,6 +332,14 @@ class PinBall {
             t.render.fillStyle = '#111'
         }
         this.targetsHit = [];
+
+        let bodies  = Composite.allBodies(this.engine.world);
+        
+        let battery = bodies.filter((b) =>
+            {b.label == 'battery'}
+        )[0]
+        battery.render.fillStyle =  '#111'
+
 
     }
 
