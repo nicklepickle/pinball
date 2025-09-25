@@ -154,20 +154,20 @@ class PinBall {
                 } 
                 
                 else if (bodyB == this.ball.body && bodyA.label == 'bouncer') {
-                    this.ball.launch(bodyA.position, .03);
+                    this.ball.launch(bodyA.position, .02);
                     this.score.value+=100;
                 }
                 else if (bodyA == this.ball.body  && bodyB.label== 'bouncer') {
-                    this.ball.launch(bodyB.position, .03);
+                    this.ball.launch(bodyB.position, .02);
                     this.score.value+=100;
                 }
 
                 else if (bodyB == this.ball.body  && bodyA.label == 'bumper') {
-                    this.ball.launch(bodyA.position, .03, bodyA.angle);
+                    this.ball.launch(bodyA.position, .02, bodyA.angle);
                     this.score.value+=20;
                 }
                 else if (bodyA == this.ball.body  && bodyB.label== 'bumper') {
-                    this.ball.launch(bodyB.position, .03, bodyB.angle);
+                    this.ball.launch(bodyB.position, .02, bodyB.angle);
                     this.score.value+=20;
                 }
 
@@ -183,17 +183,24 @@ class PinBall {
                    }
                 }
 
+                else if (bodyB == this.ball.body  && bodyA.label == 'corner') {
+                    this.ball.launch(bodyA.position, .005);
+                }
+                else if (bodyA == this.ball.body  && bodyB.label== 'corner') {
+                    this.ball.launch(bodyB.position, .005);
+                }
+
                 else if (bodyB == this.ball.body  && bodyA.label == 'battery') {
-                    this.ball.launch(bodyA.position, .03);
-                    if (this.batteryLevel < 200) {
+                    this.ball.launch(bodyA.position, .02);
+                    if (this.batteryLevel < this.batteryMax) {
                         this.batteryLevel += 10;
                     }        
 
                     this.score.value += this.batteryLevel;
                 }
                 else if (bodyA == this.ball.body  && bodyB.label== 'battery') {
-                    this.ball.launch(bodyB.position, .03);
-                    if (this.batteryLevel < 200) {
+                    this.ball.launch(bodyB.position, .02);
+                    if (this.batteryLevel < this.batteryMax) {
                         this.batteryLevel += 10;
                     }        
 
@@ -244,10 +251,7 @@ class PinBall {
 
 
         let bodies: Body[] = [
-            //left block
-            Bodies.trapezoid(24,420,140,30,Math.PI/5, { isStatic: true, angle: Math.PI/2 }), 
-            //right block
-            Bodies.trapezoid(515,420,140,30,Math.PI/5, { isStatic: true, angle: -Math.PI/2 }),
+
             //left lane
             Bodies.fromVertices(92,690,[[{x:0,y:0},{x:0,y:140},{x:110,y:166}]], {isStatic: true}),
             //right lane
@@ -260,14 +264,20 @@ class PinBall {
             Bodies.rectangle(543, 600, 30, 600, { isStatic: true }),
             //lane cap
             Bodies.circle(543, 300, 15, { isStatic: true }),
+
+            //left block
+            Bodies.trapezoid(14,420,180,50,Math.PI/4, { isStatic: true, angle: Math.PI/2 }), 
+            //right block
+            Bodies.trapezoid(525,420,180,50,Math.PI/4, { isStatic: true, angle: -Math.PI/2 }),
+
             //left ramp
             Bodies.rectangle(88, 804, 170, 30, { isStatic: true,  angle: Math.PI * .08}),
             //right ramp
             Bodies.rectangle(468, 804, 170, 30, { isStatic: true,  angle: Math.PI * -.08 }),
             //left corner
-            Bodies.fromVertices(16,766,[[{x:0,y:0},{x:0,y:30},{x:20,y:30}]], {isStatic: true}),
+            Bodies.fromVertices(16,766,[[{x:0,y:0},{x:0,y:30},{x:20,y:30}]], {isStatic: true, label:'corner'}),
             //right corner
-            Bodies.fromVertices(522,770,[[{x:0,y:0},{x:0,y:30},{x:-20,y:30}]], {isStatic: true}),
+            Bodies.fromVertices(522,770,[[{x:0,y:0},{x:0,y:30},{x:-20,y:30}]], {isStatic: true, label:'corner'}),
             //top arch
             Bodies.fromVertices(320,100,getArchVerts(290,360), { isStatic: true }),
             // bottom bouncer
