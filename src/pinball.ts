@@ -33,6 +33,7 @@ class Ball {
 class PinBall {
     engine: Engine = Engine.create();
     $canvas: HTMLCanvasElement = document.getElementById('canvas') as HTMLCanvasElement; 
+    context:any=null;
 
     // game values
     balls = new Bindable(3);
@@ -40,16 +41,17 @@ class PinBall {
     high = new Bindable(0);    
     over = new Bindable(false);
     bonus = new Bindable(10000) // score for extra ball
+    batteryLevel = new Bindable(0);
     downTime: Date = new Date();
     onSpring: boolean = false;
     forces: Matter.Vector[] = []; // forces that need to be applied
-    batteryLevel: number = 10;
+    
     batteryMax: number = 500;
 
     // objects
     ball: Ball = new Ball();
-    leftFlipper: Body = Bodies.fromVertices(205, 827, [[{x:0,y:0},{x:80, y:20},{x:80,y:24},{x:0,y:24}]],{isStatic:true})
-    rightFlipper: Body = Bodies.fromVertices(351, 827, [[{x:0,y:0},{x:-80, y:20},{x:-80,y:24},{x:0,y:24}]],{isStatic:true,})
+    leftFlipper: Body = Bodies.fromVertices(205, 830, [[{x:0,y:0},{x:80, y:20},{x:80,y:30},{x:0,y:30}]],{isStatic:true})
+    rightFlipper: Body = Bodies.fromVertices(351, 830, [[{x:0,y:0},{x:-80, y:20},{x:-80,y:30},{x:0,y:30}]],{isStatic:true,})
     oob: Body = Bodies.rectangle(300,930,2000,100, { isStatic: true, isSensor:true })
     spring: Body  = Bodies.rectangle(574, 863, 30, 30, { isStatic: true });
     targetsHit: Body[] = [];
@@ -64,6 +66,8 @@ class PinBall {
 
         //Body.setCentre(this.leftFlipper,{x:2,y:2},true)
         //Body.setCentre(this.rightFlipper,{x:2,y:2},true)
+
+        console.log(this.ball.body.mass)
 
         bodies.push(this.ball.body,this.leftFlipper,this.rightFlipper,this.oob,this.spring)
         console.log('Added ' + bodies.length + ' bodies')
@@ -122,6 +126,12 @@ class PinBall {
             Body.setAngle(this.rightFlipper, 0)
 
         })
+
+        Events.on(this.engine, 'afterRender' ,() => {
+            this.context.fillRect(325, 325, 100, 100);
+            this.context.clearRect(345, 345, 60, 60);
+            this.context.strokeRect(350, 350, 50, 50);
+        });
 
         Events.on(this.engine, 'beforeUpdate', () => {
             for (var i = 0; i<this.ball.forces.length; i++){
@@ -192,19 +202,19 @@ class PinBall {
 
                 else if (bodyB == this.ball.body  && bodyA.label == 'battery') {
                     this.ball.launch(bodyA.position, .02);
-                    if (this.batteryLevel < this.batteryMax) {
-                        this.batteryLevel += 10;
+                    if (this.batteryLevel.value < this.batteryMax) {
+                        this.batteryLevel.value += 10;
                     }        
 
-                    this.score.value += this.batteryLevel;
+                    this.score.value += this.batteryLevel.value;
                 }
                 else if (bodyA == this.ball.body  && bodyB.label== 'battery') {
                     this.ball.launch(bodyB.position, .02);
-                    if (this.batteryLevel < this.batteryMax) {
-                        this.batteryLevel += 10;
+                    if (this.batteryLevel.value < this.batteryMax) {
+                        this.batteryLevel.value += 10;
                     }        
 
-                    this.score.value += this.batteryLevel;
+                    this.score.value += this.batteryLevel.value;
                 }
             
             }
@@ -328,29 +338,24 @@ class PinBall {
         // set the canvas size AFTER createding Render
         this.$canvas.width = 600;
         this.$canvas.height = 900;
+        this.context = render.context;
         const runner: Runner = Runner.create();
         Runner.run(runner, this.engine);
         Render.run(render);
+
+
     }
 
     restart() {
         this.score.value = 0;
         this.balls.value = 3;
+        this.batteryLevel.value = 0;
         this.ball.reset();
         this.over.value = false;
         for(var t of this.targetsHit) {
             t.render.fillStyle = '#111'
         }
         this.targetsHit = [];
-
-        let bodies  = Composite.allBodies(this.engine.world);
-        
-        let battery = bodies.filter((b) =>
-            {b.label == 'battery'}
-        )[0]
-        battery.render.fillStyle =  '#111'
-
-
     }
 
 }

@@ -6,6 +6,7 @@ window.addEventListener('load', () => {
     const $score: HTMLElement = document.getElementById('score') as HTMLElement;
     const $balls: HTMLElement = document.getElementById('balls') as HTMLElement;
     const $restart: HTMLElement = document.getElementById('restart') as HTMLElement;
+    const $battery: HTMLElement = document.getElementById('battery') as HTMLElement;
 
     game.balls.addEventListener('change',() => {
         $balls.innerHTML=game.balls.value + ' BALLS';
@@ -24,6 +25,23 @@ window.addEventListener('load', () => {
 
     game.over.addEventListener('change', () => {
         $restart.style.display = (game.over.value) ? 'block' : 'none';
+    })
+
+    game.batteryLevel.addEventListener('change',() => {
+        //height:1px;
+        //border-top:29px solid #111
+        let p =  game.batteryLevel.value/game.batteryMax;
+        $battery.style.borderTopWidth = (30 - (30 * p)).toString()+'px';
+        $battery.style.height = (30 * p).toString()+'px';
+
+        let r = Math.min(250, (250 * ((100 - (p * 100)) / 80)));
+        let g = Math.min(220, (240 * ((p * 100) / 40)));
+        let rgb = "RGB(" + r.toString() + "," + g.toString() + ",0)";
+
+        console.log(p,rgb)
+
+        $battery.style.backgroundColor = rgb
+
     })
 
     document.querySelector('#restart a')?.addEventListener('click', () => {
