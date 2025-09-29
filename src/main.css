@@ -79,6 +79,6 @@ body {
     z-index: 9999;
     background-color:#C00;
     width:24px;
-    height:1px;
-    border-top:29px solid #111;
+    height:0px;
+    border-top:30px solid #111;
 }

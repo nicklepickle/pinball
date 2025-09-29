@@ -46,7 +46,6 @@ class Canvas {
 
                 let canvasImage:CanvasImage = this.images[part.label]
 
-                console.log(canvasImage)
                 if (canvasImage) {
                     let img:HTMLImageElement = canvasImage.image
                     let w:number = img.width;

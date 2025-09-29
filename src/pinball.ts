@@ -66,14 +66,12 @@ class PinBall {
         Common.setDecomp(decomp) // use poly-decomp for concave bodies
         this.engine.gravity = {x:0,y:.00038,scale:1}
 
-
         this.registerEvents()
         let bodies = this.create();
 
         //Body.setCentre(this.leftFlipper,{x:2,y:2},true)
         //Body.setCentre(this.rightFlipper,{x:2,y:2},true)
 
-        console.log(this.ball.body.mass)
 
         bodies.push(this.ball.body,this.leftFlipper,this.rightFlipper,this.oob,this.spring)
         console.log('Added ' + bodies.length + ' bodies')
@@ -85,12 +83,37 @@ class PinBall {
     hitTarget(body:Body) {
         body.render.fillStyle = '#EEC'
         this.targetsHit.push(body);
+
+
         if (this.targetsHit.length == 8) {
             for(var t of this.targetsHit) {
                 t.render.fillStyle = '#111'
             }
-            this.targetsHit = [];
-            this.score.value += 1000;
+
+
+            let flash = (times:number) => {
+                setTimeout(() => {
+                    for(var t of this.targetsHit) {
+                        t.render.fillStyle = '#EEC'
+                    }
+                }, 200)
+
+                setTimeout(() => {
+                    for(var t of this.targetsHit) {
+                        t.render.fillStyle = '#111'
+                    }
+                    if (times < 4) {
+                        times++
+                        flash(times)
+                    }
+                    else {
+                        this.targetsHit = [];
+                        this.score.value += 1000;
+                    }
+                }, 400)
+            }
+            flash(0);
+
         }
     }
 
