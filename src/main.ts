@@ -28,8 +28,6 @@ window.addEventListener('load', () => {
     })
 
     game.batteryLevel.addEventListener('change',() => {
-        //height:1px;
-        //border-top:29px solid #111
         let p =  game.batteryLevel.value/game.batteryMax;
         $battery.style.borderTopWidth = (30 - (30 * p)).toString()+'px';
         $battery.style.height = (30 * p).toString()+'px';
@@ -61,5 +59,33 @@ window.addEventListener('load', () => {
         game.high.value = JSON.parse(c).high;
     }
     game.run();
+
+
+
+/*
+    const downloadButton = document.getElementById('downloadButton');
+
+    downloadButton.addEventListener('click', function() {
+        // Convert the canvas to a data URL (PNG by default)
+        const dataURL = document.getElementById('canvas').toDataURL('image/png');
+
+        // Create a temporary anchor element
+        const link = document.createElement('a');
+
+        // Set the download attribute with a desired filename
+        link.download = 'my-canvas-image.png';
+
+        // Set the href attribute to the data URL
+        link.href = dataURL;
+
+        // Programmatically click the link to trigger the download
+        document.body.appendChild(link); // Append to body to ensure it's in the DOM
+        link.click();
+
+        // Remove the temporary link element
+        document.body.removeChild(link);
+        
+    });
+*/
 })
 

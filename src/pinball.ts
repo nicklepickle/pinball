@@ -2,11 +2,11 @@
 import Bindable from './bindable.ts';
 import decomp from 'poly-decomp';
 import { Engine, Render, Runner, Bodies, Composite, Common, Body, Events, Collision, Vector} from 'matter-js';
-
+import Canvas from './canvas.ts'
 
 class Ball {
     init: Matter.Vector = {x: 572, y: 700}
-    body: Body = Bodies.circle(this.init.x, this.init.y, 14, {restitution:.3  })
+    body: Body = Bodies.circle(this.init.x, this.init.y, 14, {restitution:.3, label:'ball'})
     forces: Matter.Vector[] = []; // forces that need to be applied
     reset() {
         this.setPosition(this.init.x,this.init.y);
@@ -34,6 +34,8 @@ class PinBall {
     engine: Engine = Engine.create();
     $canvas: HTMLCanvasElement = document.getElementById('canvas') as HTMLCanvasElement; 
     context:any=null;
+    canvas: Canvas = new Canvas(this.$canvas);
+    useCanvas:boolean = true;
 
     // game values
     balls = new Bindable(3);
@@ -50,8 +52,8 @@ class PinBall {
 
     // objects
     ball: Ball = new Ball();
-    leftFlipper: Body = Bodies.fromVertices(205, 830, [[{x:0,y:0},{x:80, y:20},{x:80,y:30},{x:0,y:30}]],{isStatic:true})
-    rightFlipper: Body = Bodies.fromVertices(351, 830, [[{x:0,y:0},{x:-80, y:20},{x:-80,y:30},{x:0,y:30}]],{isStatic:true,})
+    leftFlipper: Body = Bodies.fromVertices(205, 830, [[{x:0,y:0},{x:80, y:20},{x:80,y:30},{x:0,y:30}]],{isStatic:true,label:'flipper-left'})
+    rightFlipper: Body = Bodies.fromVertices(351, 830, [[{x:0,y:0},{x:-80, y:20},{x:-80,y:30},{x:0,y:30}]],{isStatic:true,label:'flipper-right'})
     oob: Body = Bodies.rectangle(300,930,2000,100, { isStatic: true, isSensor:true })
     spring: Body  = Bodies.rectangle(574, 863, 30, 30, { isStatic: true });
     targetsHit: Body[] = [];
@@ -138,6 +140,10 @@ class PinBall {
                 Body.applyForce(this.ball.body, this.ball.body.position, this.ball.forces[i]);
             }
             this.ball.forces=[]; // clear the array
+
+            if (this.useCanvas) {
+                this.canvas.render(this.engine.world.bodies)
+            }
         });
 
         Events.on(this.engine, 'collisionStart', (event) => {
@@ -304,12 +310,13 @@ class PinBall {
 
 
             // upper bumpers
+            Bodies.rectangle(38,420, 20, 50, { isStatic: true, label:'bumper', angle: -Math.PI}),
+            Bodies.rectangle(500,420, 20, 50, { isStatic: true, label:'bumper', angle: 0 }),
+
+            // lower bumpers
             Bodies.rectangle(110, 680, 20, 150, { isStatic: true, label:'bumper', angle: Math.PI * .815}),
             Bodies.rectangle(432, 680, 20, 150, { isStatic: true, label:'bumper', angle: Math.PI * .175}),
-            // lower bumpers
-            Bodies.rectangle(36,420, 20, 50, { isStatic: true, label:'bumper', angle: -Math.PI}),
-            Bodies.rectangle(503,420, 20, 50, { isStatic: true, label:'bumper', angle: 0 }),
-
+            
             // targets (left to right)
             Bodies.circle(100, 200, 10, {isStatic: true, isSensor:true, label:'target'}),
             Bodies.circle(135, 150, 10, {isStatic: true, isSensor:true, label:'target'}),
@@ -328,20 +335,27 @@ class PinBall {
     }
 
     run() {
-        const render: Render = Render.create({
-            canvas: this.$canvas,
-            engine: this.engine
-        });
-
-        render.options = {showAngleIndicator:true };
-
-        // set the canvas size AFTER createding Render
-        this.$canvas.width = 600;
-        this.$canvas.height = 900;
-        this.context = render.context;
         const runner: Runner = Runner.create();
         Runner.run(runner, this.engine);
-        Render.run(render);
+        if (!this.useCanvas) {
+            const render: Render = Render.create({
+                canvas: this.$canvas,
+                engine: this.engine
+            });
+
+            render.options = {showAngleIndicator:true };
+
+            // set the canvas size AFTER createding Render
+            this.$canvas.width = 600;
+            this.$canvas.height = 900;
+            this.context = render.context;
+            Render.run(render);
+        }
+        else {
+            this.$canvas.width = 600;
+            this.$canvas.height = 900;           
+        }
+
 
 
     }
