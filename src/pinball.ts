@@ -45,7 +45,11 @@ class PinBall {
     bonus = new Bindable(10000) // score for extra ball
     batteryLevel = new Bindable(0);
     downTime: Date = new Date();
-    onSpring: boolean = false;
+    get onSpring(): boolean {
+        var collision = Collision.collides(this.spring, this.ball.body);
+        return collision == null ? false : collision.collided
+    } 
+
     forces: Matter.Vector[] = []; // forces that need to be applied
     
     batteryMax: number = 500;
@@ -98,10 +102,10 @@ class PinBall {
                 this.downTime = new Date();
             }
             else {
-                if (this.ball.body.position.x < 550) {
-                    Body.rotate(this.leftFlipper, Math.PI * -.15);
-                    Body.rotate(this.rightFlipper, Math.PI * .15);
-                }
+
+                Body.rotate(this.leftFlipper, Math.PI * -.15);
+                Body.rotate(this.rightFlipper, Math.PI * .15);
+
                 if (Collision.collides(this.leftFlipper, this.ball.body)) {
                     this.ball.launch(this.leftFlipper.position,.05)
                 }
@@ -120,8 +124,7 @@ class PinBall {
                 var y = -Math.min((new Date().getTime()- this.downTime.getTime()) / 5000, .1);
                 var force: Matter.Vector = {x:x, y:y};
                 Body.applyForce(this.ball.body,this.ball.body.position,force)
-          
-                this.onSpring = false;
+
             }
 
             Body.setAngle(this.leftFlipper, 0)
@@ -129,11 +132,6 @@ class PinBall {
 
         })
 
-        Events.on(this.engine, 'afterRender' ,() => {
-            this.context.fillRect(325, 325, 100, 100);
-            this.context.clearRect(345, 345, 60, 60);
-            this.context.strokeRect(350, 350, 50, 50);
-        });
 
         Events.on(this.engine, 'beforeUpdate', () => {
             for (var i = 0; i<this.ball.forces.length; i++){
@@ -223,18 +221,6 @@ class PinBall {
                     this.score.value += this.batteryLevel.value;
                 }
             
-            }
-        });
-
-        Events.on(this.engine, 'collisionActive', (event) => {
-            for (var i = 0; i < event.pairs.length; i++) {
-                let bodyA = event.pairs[i].bodyA;
-                let bodyB = event.pairs[i].bodyB;
-                if ((bodyB == this.ball.body && bodyA == this.spring) 
-                    || (bodyA == this.ball.body && bodyB == this.spring)) {
-                        this.onSpring = true;
-                }
-                
             }
         });
 

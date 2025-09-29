@@ -2,20 +2,21 @@ import {Body} from 'matter-js';
 
 class CanvasImage {
     image:HTMLImageElement
-    constructor(src:string) {
+    constructor(label:string) {
         this.image = new Image()
-        this.image.src = src;
+        this.image.src = '/assets/' + label + '.png';
     }
 }
 
 class Canvas {
-    $canvas: HTMLCanvasElement
-    context: CanvasRenderingContext2D | null
-    ballImage =  new CanvasImage('/assets/ball.png')
-    flipperLeftImage =  new CanvasImage('/assets/flipper-left.png')
-    flipperRightImage =  new CanvasImage('/assets/flipper-right.png')
+    $canvas: HTMLCanvasElement;
+    context: CanvasRenderingContext2D | null;
     fill:boolean = true;
-    
+    images:any = {
+        'ball':new CanvasImage('ball'),
+        'flipper-left':new CanvasImage('flipper-left'),
+        'flipper-right':new CanvasImage('flipper-right'),
+    }
 
     constructor(canvas: HTMLCanvasElement) {
         this.$canvas = canvas;
@@ -27,8 +28,6 @@ class Canvas {
         let part = null;
         if (this.context == null)
             return;
-
-
 
         let c:CanvasRenderingContext2D | null = this.context;
         c.reset();
@@ -45,30 +44,26 @@ class Canvas {
                 if (!part.render.visible)
                     continue;
 
+                let canvasImage:CanvasImage = this.images[part.label]
 
-                if (part.label == 'ball') {
-                    let w = this.ballImage.image.width;
-                    let h = this.ballImage.image.height;
-                    c.drawImage(this.ballImage.image, part.position.x-w/2, part.position.y-h/2)
+                console.log(canvasImage)
+                if (canvasImage) {
+                    let img:HTMLImageElement = canvasImage.image
+                    let w:number = img.width;
+                    let h:number = img.height;
+
+                    if (part.label == 'ball') {
+                        c.drawImage(img, part.position.x-w/2, part.position.y-h/2)
+                    }
+                    else if (part.label == 'flipper-left' || part.label == 'flipper-right') {
+
+                        c.setTransform(1, 0, 0, 1, part.position.x, part.position.y); 
+                        c.rotate(part.angle)
+                        c.drawImage(img, -w/2, -h/2)
+                        c.setTransform(1,0,0,1,0,0); 
+
+                    } 
                 }
-                else if (part.label == 'flipper-left') {
-                    let w = this.flipperLeftImage.image.width;
-                    let h = this.flipperLeftImage.image.height;
-                    c.setTransform(1, 0, 0, 1, part.position.x, part.position.y); 
-                    c.rotate(part.angle)
-                    c.drawImage(this.flipperLeftImage.image, -w/2, -h/2)
-                    c.setTransform(1,0,0,1,0,0); 
-
-                } 
-                else if (part.label == 'flipper-right') {
-                    let w = this.flipperRightImage.image.width;
-                    let h = this.flipperRightImage.image.height;
-                    c.setTransform(1, 0, 0, 1, part.position.x, part.position.y); 
-                    c.rotate(part.angle)
-                    c.drawImage(this.flipperRightImage.image, -w/2, -h/2)
-                    c.setTransform(1,0,0,1,0,0); 
-
-                } 
                 else {
                     // part polygon
                     if (part.circleRadius) {
@@ -78,21 +73,8 @@ class Canvas {
                         c.beginPath();
                         c.moveTo(part.vertices[0].x, part.vertices[0].y);
 
-
-
                         for (var j = 1; j < part.vertices.length; j++) {
                             c.lineTo(part.vertices[j].x, part.vertices[j].y);
-                            /*
-                            if (!part.vertices[j - 1].isInternal || showInternalEdges) {
-                                c.lineTo(part.vertices[j].x, part.vertices[j].y);
-                            } else {
-                                c.moveTo(part.vertices[j].x, part.vertices[j].y);
-                            }
-
-                            if (part.vertices[j].isInternal && !showInternalEdges) {
-                                c.moveTo(part.vertices[(j + 1) % part.vertices.length].x, part.vertices[(j + 1) % part.vertices.length].y);
-                            }
-                            */
                         }
 
                         c.lineTo(part.vertices[0].x, part.vertices[0].y);
