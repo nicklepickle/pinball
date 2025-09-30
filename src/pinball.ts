@@ -1,7 +1,7 @@
 
 import Bindable from './bindable.ts';
 import decomp from 'poly-decomp';
-import { Engine, Render, Runner, Bodies, Composite, Common, Body, Events, Collision, Vector} from 'matter-js';
+import { Engine, World, Render, Runner, Bodies, Composite, Common, Body, Events, Collision, Vector} from 'matter-js';
 import Canvas from './canvas.ts'
 
 class Force {
@@ -12,7 +12,7 @@ class Force {
     force: Matter.Vector
     body: Body
 }
-
+/*
 class Ball {
     init: Matter.Vector = {x: 572, y: 700}
     body: Body = Bodies.circle(this.init.x, this.init.y, 14, {restitution:.3, label:'ball'})
@@ -26,7 +26,7 @@ class Ball {
     }
 
 }
-
+*/
 
 class PinBall {
     engine: Engine = Engine.create();
@@ -42,22 +42,27 @@ class PinBall {
     over = new Bindable(false);
     bonus = new Bindable(10000) // score for extra ball
     batteryLevel = new Bindable(0);
+    batteryMax: number = 400;
 
     downTime: Date = new Date();
-    get onSpring(): boolean {
-        var collision = Collision.collides(this.spring, this.ball.body);
-        return collision == null ? false : collision.collided
+    get onSpring(): Body | null {
+        for(const b of this.activeBalls) {
+            if (Collision.collides(this.spring, b)) {
+                return b;
+            }       
+        }
+        return null;
     } 
 
     forces: Force[] = []; // forces that need to be applied
+    ballInit: Matter.Vector = {x: 572, y: 700}
     
-    batteryMax: number = 500;
 
     // objects
-    ball: Ball = new Ball();
+    activeBalls: Body[] = [];
     leftFlipper: Body = Bodies.fromVertices(205, 830, [[{x:0,y:0},{x:80, y:20},{x:80,y:30},{x:0,y:30}]],{isStatic:true,label:'flipper-left'})
     rightFlipper: Body = Bodies.fromVertices(351, 830, [[{x:0,y:0},{x:-80, y:20},{x:-80,y:30},{x:0,y:30}]],{isStatic:true,label:'flipper-right'})
-    oob: Body = Bodies.rectangle(300,930,2000,100, { isStatic: true, isSensor:true })
+    drain: Body = Bodies.rectangle(300,930,2000,100, { isStatic: true, isSensor:true })
     spring: Body  = Bodies.rectangle(574, 863, 30, 30, { isStatic: true });
     targetsHit: Body[] = [];
 
@@ -72,14 +77,24 @@ class PinBall {
         //Body.setCentre(this.rightFlipper,{x:2,y:2},true)
 
 
-        bodies.push(this.ball.body,this.leftFlipper,this.rightFlipper,this.oob,this.spring)
-        console.log('Added ' + bodies.length + ' bodies')
+        bodies.push(this.leftFlipper,this.rightFlipper,this.drain,this.spring)
+        //console.log('Added ' + bodies.length + ' bodies')
+        
         Composite.add(this.engine.world,bodies)
-
+        this.putBall(this.ballInit.x, this.ballInit.y)
 
     }
+    putBall(x:number, y:number):Body {
+        let b = Bodies.circle(x, y, 14, {restitution:.3, label:'ball'})
+        
+        Composite.add(this.engine.world,b)
+        this.activeBalls.push(b);
 
-    launch(body:Body, from: Vector, velocity: number, angle:number=-999) {
+        //console.log('activeBalls',this.activeBalls.length)
+        return b;
+    }
+
+    launchBall(body:Body, from: Vector, velocity: number, angle:number=-999) {
         // if an angle wasn't passed use the angle to the "from" loacation
         if (angle == -999) {
             let deltaX = from.x - body.position.x;
@@ -90,6 +105,35 @@ class PinBall {
         let x = velocity * -Math.cos(angle);
         let y = velocity * -Math.sin(angle);
         this.forces.push(new Force({x:x, y:y},body)); // can't apply force in an event handler      
+    }
+
+    drainBall(ball:Body) {
+        //console.log('activeBalls', this.activeBalls.length)
+        if (this.activeBalls.length > 1) {
+            // if bonus ball
+            let i:number = this.activeBalls.indexOf(ball);
+
+            //console.log('remove', i)
+            this.activeBalls.splice(i,1);
+            World.remove(this.engine.world, ball);
+        }
+        else {
+            if (this.balls.value == 0) {
+                if (this.high.value < this.score.value) {
+                    this.high.value = this.score.value;
+                }
+
+                this.over.value = true;
+            }
+            else {
+                this.balls.value--;
+                setTimeout(() => {
+                    Body.setVelocity(ball, {x:0, y:0});
+                    Body.setPosition(ball, {x:this.ballInit.x, y:this.ballInit.y});
+                }, 2000)
+            }
+        }
+
     }
 
     hitTarget(body:Body) {
@@ -132,36 +176,49 @@ class PinBall {
     registerEvents() {
 
         document.addEventListener('mousedown', () => {
-
             if (this.onSpring) {
                 this.downTime = new Date();
             }
             else {
-                if (Collision.collides(this.leftFlipper, this.ball.body)) {
-                    this.launch(this.ball.body,this.leftFlipper.position,.05)
+                for(const b of this.activeBalls) {
+                    if (Collision.collides(this.leftFlipper, b)) {
+                        this.launchBall(b,this.leftFlipper.position,.05)
+                    }
+                    else if (Collision.collides(this.rightFlipper, b)) {
+                        this.launchBall(b,this.rightFlipper.position,.05)
+                    }
                 }
-                else if (Collision.collides(this.rightFlipper, this.ball.body)) {
-                    this.launch(this.ball.body,this.rightFlipper.position,.05)
-                }
+
+                let lp = this.leftFlipper.position;
+                let rp = this.rightFlipper.position;
+                Body.setPosition(this.leftFlipper,{x:lp.x,y:810});
                 Body.rotate(this.leftFlipper, Math.PI * -.15);
+                Body.setPosition(this.rightFlipper,{x:rp.x,y:810});
                 Body.rotate(this.rightFlipper, Math.PI * .15);
+
             }
         })
 
         document.addEventListener('mouseup', () => {
-            if (this.onSpring) {
+            let ball = this.onSpring;
+            if (ball != null) {
                 //let force = -Math.min((new Date().getTime()- this.downTime.getTime()) / 5000, .1);
                 //this.ball.launch(this.spring.position,force,Math.PI/2)
                 
                 var x = Math.random() * .01 - .005;
                 var y = -Math.min((new Date().getTime()- this.downTime.getTime()) / 5000, .1);
                 var force: Matter.Vector = {x:x, y:y};
-                Body.applyForce(this.ball.body,this.ball.body.position,force)
+                Body.applyForce(ball,ball.position,force)
 
             }
-
-            Body.setAngle(this.leftFlipper, 0)
-            Body.setAngle(this.rightFlipper, 0)
+            else {
+                let lp = this.leftFlipper.position;
+                let rp = this.rightFlipper.position;
+                Body.setPosition(this.leftFlipper,{x:lp.x,y:830});
+                Body.setPosition(this.rightFlipper,{x:rp.x,y:830});
+                Body.setAngle(this.leftFlipper, 0)
+                Body.setAngle(this.rightFlipper, 0)
+            }
 
         })
 
@@ -181,40 +238,30 @@ class PinBall {
             for (var i = 0; i < event.pairs.length; i++) {
                 let bodyA = event.pairs[i].bodyA;
                 let bodyB = event.pairs[i].bodyB;
-                let out = ((bodyB == this.ball.body && bodyA == this.oob) || 
-                            (bodyA == this.ball.body && bodyB == this.oob));
 
-                if (out) {
-                    if (this.balls.value == 0) {
-                        if (this.high.value < this.score.value) {
-                            this.high.value = this.score.value;
-                        }
 
-                        this.over.value = true;
-                    }
-                    else {
-                        this.balls.value--;
-                        setTimeout(() => {
-                            this.ball.reset();
-                        }, 2000)
-                    }
-                } 
+                if (bodyB.label == 'ball' && bodyA == this.drain) {
+                    this.drainBall(bodyB)
+                }
+                else if (bodyA.label == 'ball'  && bodyB == this.drain) {
+                    this.drainBall(bodyA)
+                }
                 
                 else if (bodyB.label == 'ball' && bodyA.label == 'bouncer') {
-                    this.launch(bodyB, bodyA.position, .02);
+                    this.launchBall(bodyB, bodyA.position, .02);
                     this.score.value+=100;
                 }
                 else if (bodyA.label == 'ball'  && bodyB.label== 'bouncer') {
-                    this.launch(bodyA, bodyB.position, .02);
+                    this.launchBall(bodyA, bodyB.position, .02);
                     this.score.value+=100;
                 }
 
                 else if (bodyB.label == 'ball'  && bodyA.label == 'bumper') {
-                    this.launch(bodyB, bodyA.position, .02, bodyA.angle);
+                    this.launchBall(bodyB, bodyA.position, .02, bodyA.angle);
                     this.score.value+=20;
                 }
                 else if (bodyA.label == 'ball'  && bodyB.label== 'bumper') {
-                    this.launch(bodyA, bodyB.position, .02, bodyB.angle);
+                    this.launchBall(bodyA, bodyB.position, .02, bodyB.angle);
                     this.score.value+=20;
                 }
 
@@ -231,14 +278,14 @@ class PinBall {
                 }
 
                 else if (bodyB.label == 'ball'  && bodyA.label == 'corner') {
-                    this.launch(bodyB, bodyA.position, .004);
+                    this.launchBall(bodyB, bodyA.position, .004);
                 }
                 else if (bodyA.label == 'ball'  && bodyB.label== 'corner') {
-                    this.launch(bodyA, bodyB.position, .004);
+                    this.launchBall(bodyA, bodyB.position, .004);
                 }
 
                 else if (bodyB.label == 'ball'  && bodyA.label == 'battery') {
-                    this.launch(bodyB, bodyA.position, .02);
+                    this.launchBall(bodyB, bodyA.position, .02);
                     if (this.batteryLevel.value < this.batteryMax) {
                         this.batteryLevel.value += 10;
                     }        
@@ -246,7 +293,7 @@ class PinBall {
                     this.score.value += this.batteryLevel.value;
                 }
                 else if (bodyA.label == 'ball'  && bodyB.label== 'battery') {
-                    this.launch(bodyA, bodyB.position, .02);
+                    this.launchBall(bodyA, bodyB.position, .02);
                     if (this.batteryLevel.value < this.batteryMax) {
                         this.batteryLevel.value += 10;
                     }        
@@ -261,6 +308,13 @@ class PinBall {
             if (this.score.value >= this.bonus.value) {
                 this.bonus.value += 10000;
                 this.balls.value++;
+            }
+        });
+
+        this.batteryLevel.addEventListener('change', ()=> {
+            if (this.batteryLevel.value == this.batteryMax) {
+                this.batteryLevel.value = 0
+                this.putBall(300,40)
             }
         });
 
@@ -383,7 +437,10 @@ class PinBall {
         this.score.value = 0;
         this.balls.value = 3;
         this.batteryLevel.value = 0;
-        this.ball.reset();
+
+        Body.setVelocity(this.activeBalls[0], {x:0, y:0});
+        Body.setPosition(this.activeBalls[0], {x:this.ballInit.x, y:this.ballInit.y});
+
         this.over.value = false;
         for(var t of this.targetsHit) {
             t.render.fillStyle = '#111'

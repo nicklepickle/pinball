@@ -36,7 +36,7 @@ window.addEventListener('load', () => {
         let g = Math.min(220, (240 * ((p * 100) / 40)));
         let rgb = "RGB(" + r.toString() + "," + g.toString() + ",0)";
 
-        console.log(p,rgb)
+        //console.log(p,rgb)
 
         $battery.style.backgroundColor = rgb
 
@@ -49,8 +49,7 @@ window.addEventListener('load', () => {
     //debug
     game.$canvas.addEventListener('click', (e) => {
         if (e.shiftKey) {
-            game.ball.reset()
-            game.ball.setPosition(e.clientX, e.clientY);
+            game.putBall(300,40);
         }
     })
 
