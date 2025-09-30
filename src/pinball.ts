@@ -4,10 +4,19 @@ import decomp from 'poly-decomp';
 import { Engine, Render, Runner, Bodies, Composite, Common, Body, Events, Collision, Vector} from 'matter-js';
 import Canvas from './canvas.ts'
 
+class Force {
+    constructor(f:Matter.Vector, b:Body) {
+        this.force = f;
+        this.body = b;
+    }
+    force: Matter.Vector
+    body: Body
+}
+
 class Ball {
     init: Matter.Vector = {x: 572, y: 700}
     body: Body = Bodies.circle(this.init.x, this.init.y, 14, {restitution:.3, label:'ball'})
-    forces: Matter.Vector[] = []; // forces that need to be applied
+
     reset() {
         this.setPosition(this.init.x,this.init.y);
     }
@@ -15,18 +24,7 @@ class Ball {
         Body.setVelocity(this.body, {x:0, y:0});
         Body.setPosition(this.body, {x:x, y:y});
     }
-    launch(from: Vector, velocity: number, angle:number=-999) {
-        // if an angle wasn't passed use the angle to the "from" loacation
-        if (angle == -999) {
-            let deltaX = from.x - this.body.position.x;
-            let deltaY = from.y - this.body.position.y;
-            angle= Math.atan2(deltaY, deltaX);
-        }
 
-        let x = velocity * -Math.cos(angle);
-        let y = velocity * -Math.sin(angle);
-        this.forces.push( {x:x, y:y}); // can't apply force in an event handler      
-    }
 }
 
 
@@ -44,13 +42,14 @@ class PinBall {
     over = new Bindable(false);
     bonus = new Bindable(10000) // score for extra ball
     batteryLevel = new Bindable(0);
+
     downTime: Date = new Date();
     get onSpring(): boolean {
         var collision = Collision.collides(this.spring, this.ball.body);
         return collision == null ? false : collision.collided
     } 
 
-    forces: Matter.Vector[] = []; // forces that need to be applied
+    forces: Force[] = []; // forces that need to be applied
     
     batteryMax: number = 500;
 
@@ -80,31 +79,44 @@ class PinBall {
 
     }
 
+    launch(body:Body, from: Vector, velocity: number, angle:number=-999) {
+        // if an angle wasn't passed use the angle to the "from" loacation
+        if (angle == -999) {
+            let deltaX = from.x - body.position.x;
+            let deltaY = from.y - body.position.y;
+            angle= Math.atan2(deltaY, deltaX);
+        }
+
+        let x = velocity * -Math.cos(angle);
+        let y = velocity * -Math.sin(angle);
+        this.forces.push(new Force({x:x, y:y},body)); // can't apply force in an event handler      
+    }
+
     hitTarget(body:Body) {
-        body.render.fillStyle = '#EEC'
+        body.render.fillStyle = '#EEC';
         this.targetsHit.push(body);
 
 
         if (this.targetsHit.length == 8) {
             for(var t of this.targetsHit) {
-                t.render.fillStyle = '#111'
+                t.render.fillStyle = '#111';
             }
 
 
             let flash = (times:number) => {
                 setTimeout(() => {
                     for(var t of this.targetsHit) {
-                        t.render.fillStyle = '#EEC'
+                        t.render.fillStyle = '#EEC';
                     }
                 }, 200)
 
                 setTimeout(() => {
                     for(var t of this.targetsHit) {
-                        t.render.fillStyle = '#111'
+                        t.render.fillStyle = '#111';
                     }
                     if (times < 4) {
-                        times++
-                        flash(times)
+                        times++;
+                        flash(times);
                     }
                     else {
                         this.targetsHit = [];
@@ -125,16 +137,14 @@ class PinBall {
                 this.downTime = new Date();
             }
             else {
-
-                Body.rotate(this.leftFlipper, Math.PI * -.15);
-                Body.rotate(this.rightFlipper, Math.PI * .15);
-
                 if (Collision.collides(this.leftFlipper, this.ball.body)) {
-                    this.ball.launch(this.leftFlipper.position,.05)
+                    this.launch(this.ball.body,this.leftFlipper.position,.05)
                 }
                 else if (Collision.collides(this.rightFlipper, this.ball.body)) {
-                    this.ball.launch(this.rightFlipper.position,.05)
+                    this.launch(this.ball.body,this.rightFlipper.position,.05)
                 }
+                Body.rotate(this.leftFlipper, Math.PI * -.15);
+                Body.rotate(this.rightFlipper, Math.PI * .15);
             }
         })
 
@@ -157,10 +167,10 @@ class PinBall {
 
 
         Events.on(this.engine, 'beforeUpdate', () => {
-            for (var i = 0; i<this.ball.forces.length; i++){
-                Body.applyForce(this.ball.body, this.ball.body.position, this.ball.forces[i]);
+            for (var i = 0; i<this.forces.length; i++){
+                Body.applyForce(this.forces[i].body, this.forces[i].body.position, this.forces[i].force);
             }
-            this.ball.forces=[]; // clear the array
+            this.forces=[]; // clear the array
 
             if (this.useCanvas) {
                 this.canvas.render(this.engine.world.bodies)
@@ -190,53 +200,53 @@ class PinBall {
                     }
                 } 
                 
-                else if (bodyB == this.ball.body && bodyA.label == 'bouncer') {
-                    this.ball.launch(bodyA.position, .02);
+                else if (bodyB.label == 'ball' && bodyA.label == 'bouncer') {
+                    this.launch(bodyB, bodyA.position, .02);
                     this.score.value+=100;
                 }
-                else if (bodyA == this.ball.body  && bodyB.label== 'bouncer') {
-                    this.ball.launch(bodyB.position, .02);
+                else if (bodyA.label == 'ball'  && bodyB.label== 'bouncer') {
+                    this.launch(bodyA, bodyB.position, .02);
                     this.score.value+=100;
                 }
 
-                else if (bodyB == this.ball.body  && bodyA.label == 'bumper') {
-                    this.ball.launch(bodyA.position, .02, bodyA.angle);
+                else if (bodyB.label == 'ball'  && bodyA.label == 'bumper') {
+                    this.launch(bodyB, bodyA.position, .02, bodyA.angle);
                     this.score.value+=20;
                 }
-                else if (bodyA == this.ball.body  && bodyB.label== 'bumper') {
-                    this.ball.launch(bodyB.position, .02, bodyB.angle);
+                else if (bodyA.label == 'ball'  && bodyB.label== 'bumper') {
+                    this.launch(bodyA, bodyB.position, .02, bodyB.angle);
                     this.score.value+=20;
                 }
 
-                else if (bodyB == this.ball.body  && bodyA.label == 'target') {
+                else if (bodyB.label == 'ball' && bodyA.label == 'target') {
                    if (this.targetsHit.find((b) => b == bodyA) == undefined) {
                         this.hitTarget(bodyA)
 
                    }
                 }
-                else if (bodyA == this.ball.body  && bodyB.label== 'target') {
+                else if (bodyA.label == 'ball'  && bodyB.label== 'target') {
                    if (this.targetsHit.find((b) => b == bodyB) == undefined) {
                         this.hitTarget(bodyB)
                    }
                 }
 
-                else if (bodyB == this.ball.body  && bodyA.label == 'corner') {
-                    this.ball.launch(bodyA.position, .005);
+                else if (bodyB.label == 'ball'  && bodyA.label == 'corner') {
+                    this.launch(bodyB, bodyA.position, .004);
                 }
-                else if (bodyA == this.ball.body  && bodyB.label== 'corner') {
-                    this.ball.launch(bodyB.position, .005);
+                else if (bodyA.label == 'ball'  && bodyB.label== 'corner') {
+                    this.launch(bodyA, bodyB.position, .004);
                 }
 
-                else if (bodyB == this.ball.body  && bodyA.label == 'battery') {
-                    this.ball.launch(bodyA.position, .02);
+                else if (bodyB.label == 'ball'  && bodyA.label == 'battery') {
+                    this.launch(bodyB, bodyA.position, .02);
                     if (this.batteryLevel.value < this.batteryMax) {
                         this.batteryLevel.value += 10;
                     }        
 
                     this.score.value += this.batteryLevel.value;
                 }
-                else if (bodyA == this.ball.body  && bodyB.label== 'battery') {
-                    this.ball.launch(bodyB.position, .02);
+                else if (bodyA.label == 'ball'  && bodyB.label== 'battery') {
+                    this.launch(bodyA, bodyB.position, .02);
                     if (this.batteryLevel.value < this.batteryMax) {
                         this.batteryLevel.value += 10;
                     }        
