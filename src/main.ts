@@ -24,7 +24,15 @@ window.addEventListener('load', () => {
     })
 
     game.over.addEventListener('change', () => {
-        $restart.style.display = (game.over.value) ? 'block' : 'none';
+
+        if (game.over.value) {
+            $restart.style.display = 'block'
+            $balls.innerHTML = "GAME OVER"
+        }
+        else {
+            $restart.style.display = 'none'
+            $balls.innerHTML = game.balls.value + ' BALLS';
+        }
     })
 
     game.batteryLevel.addEventListener('change',() => {
@@ -47,11 +55,13 @@ window.addEventListener('load', () => {
     })
 
     //debug
+    /*
     game.$canvas.addEventListener('click', (e) => {
         if (e.shiftKey) {
             game.putBall(300,40);
         }
     })
+     */
 
     let c = Cookie.getCookie('_ps_pb')
     if (c) {
@@ -77,12 +87,6 @@ window.addEventListener('load', () => {
         // Set the href attribute to the data URL
         link.href = dataURL;
 
-        // Programmatically click the link to trigger the download
-        document.body.appendChild(link); // Append to body to ensure it's in the DOM
-        link.click();
-
-        // Remove the temporary link element
-        document.body.removeChild(link);
         
     });
 */
