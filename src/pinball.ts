@@ -12,28 +12,13 @@ class Force {
     force: Matter.Vector
     body: Body
 }
-/*
-class Ball {
-    init: Matter.Vector = {x: 572, y: 700}
-    body: Body = Bodies.circle(this.init.x, this.init.y, 14, {restitution:.3, label:'ball'})
-
-    reset() {
-        this.setPosition(this.init.x,this.init.y);
-    }
-    setPosition(x:number,y:number) {
-        Body.setVelocity(this.body, {x:0, y:0});
-        Body.setPosition(this.body, {x:x, y:y});
-    }
-
-}
-*/
 
 class PinBall {
     engine: Engine = Engine.create();
     $canvas: HTMLCanvasElement = document.getElementById('canvas') as HTMLCanvasElement; 
-    //context:any=null;
     canvas: Canvas = new Canvas(this.$canvas);
     useCanvas:boolean = true;
+    mouseDown:boolean = false;
 
     // game values
     balls = new Bindable(3);
@@ -57,14 +42,13 @@ class PinBall {
     forces: Force[] = []; // forces that need to be applied
     ballInit: Matter.Vector = {x: 572, y: 700}
     
-
     // objects
     activeBalls: Body[] = [];
+    targetsHit: Body[] = [];
     leftFlipper: Body = Bodies.fromVertices(205, 835, [[{x:0,y:0},{x:80, y:20},{x:80,y:40},{x:0,y:40}]],{isStatic:true,label:'flipper-left'})
     rightFlipper: Body = Bodies.fromVertices(351, 835, [[{x:0,y:0},{x:-80, y:20},{x:-80,y:40},{x:0,y:40}]],{isStatic:true,label:'flipper-right'})
     drain: Body = Bodies.rectangle(300,930,2000,100, { isStatic: true, isSensor:true })
-    spring: Body  = Bodies.rectangle(574, 863, 30, 30, { isStatic: true });
-    targetsHit: Body[] = [];
+    spring: Body  = Bodies.rectangle(574, 833, 30, 90, { isStatic: true, label:'spring'});
 
     constructor() {
         Common.setDecomp(decomp) // use poly-decomp for concave bodies
@@ -72,10 +56,6 @@ class PinBall {
 
         this.registerEvents()
         let bodies = this.create();
-
-        //Body.setCentre(this.leftFlipper,{x:2,y:2},true)
-        //Body.setCentre(this.rightFlipper,{x:2,y:2},true)
-
 
         bodies.push(this.leftFlipper,this.rightFlipper,this.drain,this.spring)
         //console.log('Added ' + bodies.length + ' bodies')
@@ -89,8 +69,6 @@ class PinBall {
         
         Composite.add(this.engine.world,b)
         this.activeBalls.push(b);
-
-        //console.log('activeBalls',this.activeBalls.length)
         return b;
     }
 
@@ -139,13 +117,10 @@ class PinBall {
     hitTarget(body:Body) {
         body.render.fillStyle = '#EEC';
         this.targetsHit.push(body);
-
-
         if (this.targetsHit.length == 8) {
             for(var t of this.targetsHit) {
                 t.render.fillStyle = '#111';
             }
-
 
             let flash = (times:number) => {
                 setTimeout(() => {
@@ -174,14 +149,12 @@ class PinBall {
     }
 
     registerEvents() {
-
         document.addEventListener('mousedown', () => {
+            this.mouseDown = true;
             if (this.onSpring) {
                 this.downTime = new Date();
             }
             else {
-
-
                 let lp = this.leftFlipper.position;
                 let rp = this.rightFlipper.position;
                 Body.setPosition(this.leftFlipper,{x:lp.x,y:820});
@@ -201,11 +174,11 @@ class PinBall {
                         this.launchBall(b,this.rightFlipper.position,.05)
                     }
                 }
-
             }
         })
 
         document.addEventListener('mouseup', () => {
+            this.mouseDown = false;
             let ball = this.onSpring;
             if (ball != null) {
                 //let force = -Math.min((new Date().getTime()- this.downTime.getTime()) / 5000, .1);
@@ -215,7 +188,6 @@ class PinBall {
                 var y = -Math.min((new Date().getTime()- this.downTime.getTime()) / 5000, .1);
                 var force: Matter.Vector = {x:x, y:y};
                 Body.applyForce(ball,ball.position,force)
-
             }
             let lp = this.leftFlipper.position;
             let rp = this.rightFlipper.position;
@@ -234,7 +206,7 @@ class PinBall {
             this.forces=[]; // clear the array
 
             if (this.useCanvas) {
-                this.canvas.render(this.engine.world.bodies)
+                this.canvas.render(this)
             }
         });
 
@@ -317,8 +289,9 @@ class PinBall {
 
         this.batteryLevel.addEventListener('change', ()=> {
             if (this.batteryLevel.value == this.batteryMax) {
+                let xOffset:number = (Math.random() * 40)  -20
+                this.putBall(300 + xOffset,40);
                 this.batteryLevel.value = 0
-                this.putBall(300,40)
             }
         });
 
@@ -341,7 +314,6 @@ class PinBall {
 
             return [archVerts];
         }
-
 
         let bodies: Body[] = [
 
@@ -384,7 +356,6 @@ class PinBall {
             Bodies.circle(280, 535, 15, {isStatic: true, label:'battery'}),
             Bodies.rectangle(280, 550, 30, 30, {isStatic: true, label:'battery'}),
             Bodies.circle(280, 565, 15, {isStatic: true, label:'battery'}),
-
 
             // upper bumpers
             Bodies.rectangle(38,420, 20, 50, { isStatic: true, label:'bumper', angle: -Math.PI}),
@@ -432,9 +403,6 @@ class PinBall {
             this.$canvas.width = 600;
             this.$canvas.height = 900;           
         }
-
-
-
     }
 
     restart() {

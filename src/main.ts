@@ -54,24 +54,24 @@ window.addEventListener('load', () => {
         game.restart();
     })
 
-    //debug
-    /*
-    game.$canvas.addEventListener('click', (e) => {
-        if (e.shiftKey) {
-            game.putBall(300,40);
-        }
-    })
-     */
-
     let c = Cookie.getCookie('_ps_pb')
     if (c) {
         game.high.value = JSON.parse(c).high;
     }
     game.run();
 
+    //debug
+    /*
+    game.$canvas.addEventListener('click', (e) => {
+        if (e.shiftKey) {
+            let xOffset:number = (Math.random() * 40)  -20
+            game.putBall(300 + xOffset,40);
+        }
+    })
+    */
+     
 
-
-/*
+    /*
     const downloadButton = document.getElementById('downloadButton');
 
     downloadButton.addEventListener('click', function() {
@@ -85,9 +85,7 @@ window.addEventListener('load', () => {
         link.download = 'my-canvas-image.png';
 
         // Set the href attribute to the data URL
-        link.href = dataURL;
-
-        
+        link.href = dataURL;       
     });
 */
 })

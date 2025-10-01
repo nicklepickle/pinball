@@ -1,4 +1,4 @@
-import {Body} from 'matter-js';
+import PinBall from './pinball.ts';
 
 class CanvasImage {
     image:HTMLImageElement
@@ -14,6 +14,7 @@ class Canvas {
     fill:boolean = true;
     images:any = {
         'ball':new CanvasImage('ball'),
+        'spring':new CanvasImage('spring'),
         'flipper-left':new CanvasImage('flipper-left'),
         'flipper-right':new CanvasImage('flipper-right'),
     }
@@ -23,7 +24,7 @@ class Canvas {
         this.context = canvas.getContext("2d");
     }
 
-    render(bodies: Body[]) {
+    render(game: PinBall) {
         let body = null;
         let part = null;
         if (this.context == null)
@@ -31,8 +32,8 @@ class Canvas {
 
         let c:CanvasRenderingContext2D | null = this.context;
         c.reset();
-        for (var i = 0; i < bodies.length; i++) {
-            body = bodies[i];
+        for (var i = 0; i < game.engine.world.bodies.length; i++) {
+            body = game.engine.world.bodies[i];
 
             if (!body.render.visible)
                 continue;
@@ -54,13 +55,20 @@ class Canvas {
                     if (part.label == 'ball') {
                         c.drawImage(img, part.position.x-w/2, part.position.y-h/2)
                     }
+                    else if (part.label == 'spring') {
+                        if (game.mouseDown && game.onSpring != null) {
+                            var p = Math.min((new Date().getTime()- game.downTime.getTime()) / 5000, .1) * 8;
+                            c.drawImage(img, part.position.x-w/2, part.position.y-h/2 + 90 * p, 30, 90 - (90 * p))
+                        }
+                        else {
+                            c.drawImage(img, part.position.x-w/2, part.position.y-h/2 )
+                        }
+                    }
                     else if (part.label == 'flipper-left' || part.label == 'flipper-right') {
-
                         c.setTransform(1, 0, 0, 1, part.position.x, part.position.y); 
                         c.rotate(part.angle)
                         c.drawImage(img, -w/2, -h/2)
                         c.setTransform(1,0,0,1,0,0); 
-
                     } 
                 }
                 else {
