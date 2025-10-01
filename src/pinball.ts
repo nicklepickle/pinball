@@ -317,10 +317,6 @@ class PinBall {
 
         let bodies: Body[] = [
 
-            //left lane
-            Bodies.fromVertices(92,690,[[{x:0,y:0},{x:0,y:140},{x:110,y:166}]], {isStatic: true}),
-            //right lane
-            Bodies.fromVertices(448,690,[[{x:0,y:0},{x:0,y:140},{x:-100,y:166}]], {isStatic: true}),
             //left edge
             Bodies.rectangle(-10, 550, 40, 700, { isStatic: true }),
             //right edge
@@ -334,6 +330,11 @@ class PinBall {
             Bodies.trapezoid(14,420,180,50,Math.PI/4, { isStatic: true, angle: Math.PI/2 }), 
             //right block
             Bodies.trapezoid(525,420,180,50,Math.PI/4, { isStatic: true, angle: -Math.PI/2 }),
+
+            //left lane,
+            Bodies.fromVertices(92,690,[[{x:0,y:4},{x:0,y:140},{x:110,y:168},{x:6,y:4}]], {isStatic: true}),
+            //right lane
+            Bodies.fromVertices(452,690,[[{x:0,y:4},{x:0,y:140},{x:-100,y:168},{x:-6,y:4}]], {isStatic: true}),
 
             //left ramp
             Bodies.rectangle(88, 804, 170, 30, { isStatic: true,  angle: Math.PI * .08}),
@@ -358,13 +359,18 @@ class PinBall {
             Bodies.circle(280, 565, 15, {isStatic: true, label:'battery'}),
 
             // upper bumpers
-            Bodies.rectangle(38,420, 20, 50, { isStatic: true, label:'bumper', angle: -Math.PI}),
-            Bodies.rectangle(500,420, 20, 50, { isStatic: true, label:'bumper', angle: 0 }),
+            Bodies.rectangle(36,420, 20, 50, { isStatic: true, label:'bumper', angle: -Math.PI}),
+            Bodies.rectangle(502,420, 20, 50, { isStatic: true, label:'bumper', angle: 0 }),
 
             // lower bumpers
-            Bodies.rectangle(110, 680, 20, 150, { isStatic: true, label:'bumper', angle: Math.PI * .815}),
-            Bodies.rectangle(432, 680, 20, 150, { isStatic: true, label:'bumper', angle: Math.PI * .175}),
-            
+            //Bodies.rectangle(110, 680, 20, 150, { isStatic: true, label:'bumper', angle: Math.PI * .815}),
+            //Bodies.rectangle(432, 680, 20, 150, { isStatic: true, label:'bumper', angle: Math.PI * .175}),
+            Bodies.rectangle(86, 642, 20, 50, { isStatic: true, label:'bumper', angle: Math.PI * .815}),
+            Bodies.rectangle(131, 710, 20, 50, { isStatic: true, label:'bumper', angle: Math.PI * .815}),
+
+            Bodies.rectangle(454, 642, 20, 50, { isStatic: true, label:'bumper', angle: Math.PI * .175}),
+            Bodies.rectangle(414, 710, 20, 50, { isStatic: true, label:'bumper', angle: Math.PI * .175}),
+                
             // targets (left to right)
             Bodies.circle(100, 200, 10, {isStatic: true, isSensor:true, label:'target'}),
             Bodies.circle(135, 150, 10, {isStatic: true, isSensor:true, label:'target'}),
