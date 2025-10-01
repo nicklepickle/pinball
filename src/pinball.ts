@@ -31,7 +31,7 @@ class Ball {
 class PinBall {
     engine: Engine = Engine.create();
     $canvas: HTMLCanvasElement = document.getElementById('canvas') as HTMLCanvasElement; 
-    context:any=null;
+    //context:any=null;
     canvas: Canvas = new Canvas(this.$canvas);
     useCanvas:boolean = true;
 
@@ -60,8 +60,8 @@ class PinBall {
 
     // objects
     activeBalls: Body[] = [];
-    leftFlipper: Body = Bodies.fromVertices(205, 830, [[{x:0,y:0},{x:80, y:20},{x:80,y:30},{x:0,y:30}]],{isStatic:true,label:'flipper-left'})
-    rightFlipper: Body = Bodies.fromVertices(351, 830, [[{x:0,y:0},{x:-80, y:20},{x:-80,y:30},{x:0,y:30}]],{isStatic:true,label:'flipper-right'})
+    leftFlipper: Body = Bodies.fromVertices(205, 835, [[{x:0,y:0},{x:80, y:20},{x:80,y:40},{x:0,y:40}]],{isStatic:true,label:'flipper-left'})
+    rightFlipper: Body = Bodies.fromVertices(351, 835, [[{x:0,y:0},{x:-80, y:20},{x:-80,y:40},{x:0,y:40}]],{isStatic:true,label:'flipper-right'})
     drain: Body = Bodies.rectangle(300,930,2000,100, { isStatic: true, isSensor:true })
     spring: Body  = Bodies.rectangle(574, 863, 30, 30, { isStatic: true });
     targetsHit: Body[] = [];
@@ -180,21 +180,27 @@ class PinBall {
                 this.downTime = new Date();
             }
             else {
-                for(const b of this.activeBalls) {
-                    if (Collision.collides(this.leftFlipper, b)) {
-                        this.launchBall(b,this.leftFlipper.position,.05)
-                    }
-                    else if (Collision.collides(this.rightFlipper, b)) {
-                        this.launchBall(b,this.rightFlipper.position,.05)
-                    }
-                }
+
 
                 let lp = this.leftFlipper.position;
                 let rp = this.rightFlipper.position;
-                Body.setPosition(this.leftFlipper,{x:lp.x,y:810});
+                Body.setPosition(this.leftFlipper,{x:lp.x,y:820});
                 Body.rotate(this.leftFlipper, Math.PI * -.15);
-                Body.setPosition(this.rightFlipper,{x:rp.x,y:810});
+                Body.setPosition(this.rightFlipper,{x:rp.x,y:820});
                 Body.rotate(this.rightFlipper, Math.PI * .15);
+
+                for(const b of this.activeBalls) {
+                    if (Collision.collides(this.leftFlipper, b)) {
+                        let p = b.position;
+                        Body.setPosition(b,{ x:p.x, y:p.y-20})
+                        this.launchBall(b,this.leftFlipper.position,.05)
+                    }
+                    else if (Collision.collides(this.rightFlipper, b)) {
+                        let p = b.position;
+                        Body.setPosition(b,{ x:p.x, y:p.y-20})
+                        this.launchBall(b,this.rightFlipper.position,.05)
+                    }
+                }
 
             }
         })
@@ -211,14 +217,12 @@ class PinBall {
                 Body.applyForce(ball,ball.position,force)
 
             }
-            else {
-                let lp = this.leftFlipper.position;
-                let rp = this.rightFlipper.position;
-                Body.setPosition(this.leftFlipper,{x:lp.x,y:830});
-                Body.setPosition(this.rightFlipper,{x:rp.x,y:830});
-                Body.setAngle(this.leftFlipper, 0)
-                Body.setAngle(this.rightFlipper, 0)
-            }
+            let lp = this.leftFlipper.position;
+            let rp = this.rightFlipper.position;
+            Body.setPosition(this.leftFlipper,{x:lp.x,y:835});
+            Body.setPosition(this.rightFlipper,{x:rp.x,y:835});
+            Body.setAngle(this.leftFlipper, 0)
+            Body.setAngle(this.rightFlipper, 0)
 
         })
 
@@ -421,7 +425,7 @@ class PinBall {
             // set the canvas size AFTER createding Render
             this.$canvas.width = 600;
             this.$canvas.height = 900;
-            this.context = render.context;
+
             Render.run(render);
         }
         else {
