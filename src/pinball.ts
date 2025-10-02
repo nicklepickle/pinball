@@ -185,7 +185,7 @@ class PinBall {
                 //this.ball.launch(this.spring.position,force,Math.PI/2)
                 
                 var x = Math.random() * .01 - .005;
-                var y = -Math.min((new Date().getTime()- this.downTime.getTime()) / 5000, .1);
+                var y = -Math.min((new Date().getTime()- this.downTime.getTime()) / 10000, .1);
                 var force: Matter.Vector = {x:x, y:y};
                 Body.applyForce(ball,ball.position,force)
             }

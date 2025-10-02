@@ -26,12 +26,12 @@ window.addEventListener('load', () => {
     game.over.addEventListener('change', () => {
 
         if (game.over.value) {
-            $restart.style.display = 'block'
             $balls.innerHTML = "GAME OVER"
+            $restart.style.display = 'block'
         }
         else {
-            $restart.style.display = 'none'
             $balls.innerHTML = game.balls.value + ' BALLS';
+            $restart.style.display = 'none'
         }
     })
 
@@ -68,25 +68,26 @@ window.addEventListener('load', () => {
             game.putBall(300 + xOffset,40);
         }
     })
-    */
+ 
      
 
-    /*
-    const downloadButton = document.getElementById('downloadButton');
+
+    const downloadButton = document.getElementById('downloadButton') as HTMLAnchorElement;
 
     downloadButton.addEventListener('click', function() {
         // Convert the canvas to a data URL (PNG by default)
-        const dataURL = document.getElementById('canvas').toDataURL('image/png');
-
-        // Create a temporary anchor element
-        const link = document.createElement('a');
+        let dataURL = game.$canvas.toDataURL('image/png');
 
         // Set the download attribute with a desired filename
-        link.download = 'my-canvas-image.png';
+        downloadButton.download = 'my-canvas-image.png';
 
         // Set the href attribute to the data URL
-        link.href = dataURL;       
-    });
-*/
+        downloadButton.href = dataURL;       
+    });   */
+
+
+
+
+    
 })
 

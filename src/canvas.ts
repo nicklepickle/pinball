@@ -57,7 +57,7 @@ class Canvas {
                     }
                     else if (part.label == 'spring') {
                         if (game.mouseDown && game.onSpring != null) {
-                            var p = Math.min((new Date().getTime()- game.downTime.getTime()) / 5000, .1) * 8;
+                            var p = Math.min((new Date().getTime()- game.downTime.getTime()) / 10000, .1) * 8;
                             c.drawImage(img, part.position.x-w/2, part.position.y-h/2 + 90 * p, 30, 90 - (90 * p))
                         }
                         else {
