@@ -8,15 +8,32 @@ class CanvasImage {
     }
 }
 
+class CanvasParticle {
+    x:number;
+    y:number;
+    alpha:number;
+    constructor(x:number, y:number, alpha:number) {
+        this.x=x;
+        this.y=y;
+        this.alpha=alpha;
+    }
+}
+
 class Canvas {
     $canvas: HTMLCanvasElement;
     context: CanvasRenderingContext2D | null;
     fill:boolean = true;
+    particles:CanvasParticle[] = [];
     images:any = {
         'ball':new CanvasImage('ball'),
         'spring':new CanvasImage('spring'),
+        'bouncer':new CanvasImage('bouncer'),
+        'bouncer-lit':new CanvasImage('bouncer-lit'),
+        'bumper':new CanvasImage('bumper'),
         'flipper-left':new CanvasImage('flipper-left'),
         'flipper-right':new CanvasImage('flipper-right'),
+        'particle':new CanvasImage('particle'),
+        'table-background':new CanvasImage('table-background')
     }
 
     constructor(canvas: HTMLCanvasElement) {
@@ -32,6 +49,21 @@ class Canvas {
 
         let c:CanvasRenderingContext2D | null = this.context;
         c.reset();
+
+        c.drawImage(this.images['table-background'].image,0,0)
+
+        let particleImage = this.images['particle'].image;
+        let pw = particleImage.width;
+        let ph = particleImage.height;
+        for (var i = 0; i < this.particles.length; i++) {
+            c.globalAlpha = this.particles[i].alpha;
+            c.drawImage(particleImage, this.particles[i].x, this.particles[i].y)
+            this.particles[i].alpha -= .2;
+            
+        }
+        c.globalAlpha = 1;
+        this.particles = this.particles.filter(p => p.alpha > 0);
+
         for (var i = 0; i < game.engine.world.bodies.length; i++) {
             body = game.engine.world.bodies[i];
 
@@ -52,11 +84,33 @@ class Canvas {
                     let w:number = img.width;
                     let h:number = img.height;
 
-                    if (part.label == 'ball') {
+                    if (part.label == 'ball' ) {
                         c.drawImage(img, part.position.x-w/2, part.position.y-h/2)
                     }
+                    else if (part.label == 'bouncer') {
+                        if (game.ballOn(body)) {
+                            
+                            this.particles.push(new CanvasParticle(part.position.x-pw/2, part.position.y-ph/2, .8))
+                        }
+                        c.drawImage(img, part.position.x-w/2, part.position.y-h/2)
+
+
+                    }
+                    else if (part.label == 'bumper') {
+                        if (game.ballOn(body)) {
+                            let px = 8 * -Math.cos(part.angle);
+                            let py = 8 * -Math.sin(part.angle);
+                            this.particles.push(new CanvasParticle(part.position.x-pw/2+px, part.position.y-ph/2+py, .4))
+                        }
+
+                        c.setTransform(1, 0, 0, 1, part.position.x, part.position.y); 
+                        c.rotate(part.angle)
+                        c.drawImage(img, -w/2, -h/2)
+                        c.setTransform(1,0,0,1,0,0); 
+
+                    }
                     else if (part.label == 'spring') {
-                        if (game.mouseDown && game.onSpring != null) {
+                        if (game.mouseDown && game.ballOn(game.spring) != null) {
                             var p = Math.min((new Date().getTime()- game.downTime.getTime()) / 10000, .1) * 8;
                             c.drawImage(img, part.position.x-w/2, part.position.y-h/2 + 90 * p, 30, 90 - (90 * p))
                         }
@@ -64,15 +118,17 @@ class Canvas {
                             c.drawImage(img, part.position.x-w/2, part.position.y-h/2 )
                         }
                     }
-                    else if (part.label == 'flipper-left' || part.label == 'flipper-right') {
+                    else if (part.label == 'flipper-left' || part.label == 'flipper-right' ) {
                         c.setTransform(1, 0, 0, 1, part.position.x, part.position.y); 
                         c.rotate(part.angle)
                         c.drawImage(img, -w/2, -h/2)
                         c.setTransform(1,0,0,1,0,0); 
                     } 
                 }
-                else {
+                else if (part.label == 'target' || part.label == 'battery') {
+
                     // part polygon
+                  
                     if (part.circleRadius) {
                         c.beginPath();
                         c.arc(part.position.x, part.position.y, part.circleRadius, 0, 2 * Math.PI);
@@ -98,6 +154,7 @@ class Canvas {
                         c.lineWidth = 1;
                         c.stroke();
                     }
+                  
                 }
                 c.globalAlpha = 1;
             }

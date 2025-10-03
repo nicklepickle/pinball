@@ -30,9 +30,9 @@ class PinBall {
     batteryMax: number = 400;
 
     downTime: Date = new Date();
-    get onSpring(): Body | null {
+    ballOn(body: Body): Body | null {
         for(const b of this.activeBalls) {
-            if (Collision.collides(this.spring, b)) {
+            if (Collision.collides(body, b)) {
                 return b;
             }       
         }
@@ -45,7 +45,7 @@ class PinBall {
     // objects
     activeBalls: Body[] = [];
     targetsHit: Body[] = [];
-    leftFlipper: Body = Bodies.fromVertices(205, 835, [[{x:0,y:0},{x:80, y:20},{x:80,y:40},{x:0,y:40}]],{isStatic:true,label:'flipper-left'})
+    leftFlipper: Body = Bodies.fromVertices(207, 834, [[{x:0,y:0},{x:80, y:20},{x:80,y:40},{x:0,y:40}]],{isStatic:true,label:'flipper-left'})
     rightFlipper: Body = Bodies.fromVertices(351, 835, [[{x:0,y:0},{x:-80, y:20},{x:-80,y:40},{x:0,y:40}]],{isStatic:true,label:'flipper-right'})
     drain: Body = Bodies.rectangle(300,930,2000,100, { isStatic: true, isSensor:true })
     spring: Body  = Bodies.rectangle(574, 833, 30, 90, { isStatic: true, label:'spring'});
@@ -151,7 +151,7 @@ class PinBall {
     registerEvents() {
         document.addEventListener('mousedown', () => {
             this.mouseDown = true;
-            if (this.onSpring) {
+            if (this.ballOn(this.spring)) {
                 this.downTime = new Date();
             }
             else {
@@ -179,7 +179,7 @@ class PinBall {
 
         document.addEventListener('mouseup', () => {
             this.mouseDown = false;
-            let ball = this.onSpring;
+            let ball = this.ballOn(this.spring);
             if (ball != null) {
                 //let force = -Math.min((new Date().getTime()- this.downTime.getTime()) / 5000, .1);
                 //this.ball.launch(this.spring.position,force,Math.PI/2)
@@ -365,10 +365,10 @@ class PinBall {
             // lower bumpers
             //Bodies.rectangle(110, 680, 20, 150, { isStatic: true, label:'bumper', angle: Math.PI * .815}),
             //Bodies.rectangle(432, 680, 20, 150, { isStatic: true, label:'bumper', angle: Math.PI * .175}),
-            Bodies.rectangle(86, 642, 20, 50, { isStatic: true, label:'bumper', angle: Math.PI * .815}),
+            Bodies.rectangle(85, 642, 20, 50, { isStatic: true, label:'bumper', angle: Math.PI * .815}),
             Bodies.rectangle(131, 710, 20, 50, { isStatic: true, label:'bumper', angle: Math.PI * .815}),
 
-            Bodies.rectangle(454, 642, 20, 50, { isStatic: true, label:'bumper', angle: Math.PI * .175}),
+            Bodies.rectangle(456, 642, 20, 50, { isStatic: true, label:'bumper', angle: Math.PI * .175}),
             Bodies.rectangle(414, 710, 20, 50, { isStatic: true, label:'bumper', angle: Math.PI * .175}),
                 
             // targets (left to right)

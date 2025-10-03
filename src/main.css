@@ -28,6 +28,7 @@ body {
     position:absolute;
     touch-action: none;
 
+
 }
 
 #app {
@@ -35,23 +36,36 @@ body {
     height: 100%;
 }
 
-#scoreboard {
-    color:#FFF;
+
+#score-background {
+    color:#002700;
     position:absolute;
-    z-index: 9999;
+    z-index: 8888;
     display: flex;
-    width: 580px;
-    padding: 10px;
+    width: 560px;
+    padding: 15px 0px 0px 20px;
     font-family:'LCD', 'Courier New', Courier, monospace;
     font-size:20px;
 
 }
 
-#scoreboard div {
+#scoreboard {
+    color:#096;
+    position:absolute;
+    z-index: 9999;
+    display: flex;
+    width: 560px;
+    padding: 15px 0px 0px 20px;
+    font-family:'LCD', 'Courier New', Courier, monospace;
+    font-size:20px;
+
+}
+
+#scoreboard div, #score-background div {
     width:50%;
 }
 
-#restart, #balls {
+#restart, #balls, #score-background p {
     text-align:right;
     margin:0px;
 }
@@ -61,7 +75,7 @@ body {
 }
 
 #restart a{
-    color:#FFF;
+    color:#096;
 }
 
 #battery {
