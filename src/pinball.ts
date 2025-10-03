@@ -30,17 +30,8 @@ class PinBall {
     batteryMax: number = 400;
 
     downTime: Date = new Date();
-    ballOn(body: Body): Body | null {
-        for(const b of this.activeBalls) {
-            if (Collision.collides(body, b)) {
-                return b;
-            }       
-        }
-        return null;
-    } 
-
     forces: Force[] = []; // forces that need to be applied
-    ballInit: Matter.Vector = {x: 572, y: 700}
+    ballInit: Matter.Vector = {x: 572, y: 720}
     
     // objects
     activeBalls: Body[] = [];
@@ -48,7 +39,7 @@ class PinBall {
     leftFlipper: Body = Bodies.fromVertices(207, 834, [[{x:0,y:0},{x:80, y:20},{x:80,y:40},{x:0,y:40}]],{isStatic:true,label:'flipper-left'})
     rightFlipper: Body = Bodies.fromVertices(351, 835, [[{x:0,y:0},{x:-80, y:20},{x:-80,y:40},{x:0,y:40}]],{isStatic:true,label:'flipper-right'})
     drain: Body = Bodies.rectangle(300,930,2000,100, { isStatic: true, isSensor:true })
-    spring: Body  = Bodies.rectangle(574, 833, 30, 90, { isStatic: true, label:'spring'});
+    spring: Body  = Bodies.rectangle(574, 833, 30, 145, { isStatic: true, label:'spring'});
 
     constructor() {
         Common.setDecomp(decomp) // use poly-decomp for concave bodies
@@ -64,6 +55,16 @@ class PinBall {
         this.putBall(this.ballInit.x, this.ballInit.y)
 
     }
+
+    ballOn(body: Body): Body | null {
+        for(const b of this.activeBalls) {
+            if (Collision.collides(body, b)) {
+                return b;
+            }       
+        }
+        return null;
+    }
+
     putBall(x:number, y:number):Body {
         let b = Bodies.circle(x, y, 14, {restitution:.3, label:'ball'})
         
@@ -222,6 +223,14 @@ class PinBall {
                 else if (bodyA.label == 'ball'  && bodyB == this.drain) {
                     this.drainBall(bodyA)
                 }
+
+                // prevents stale down time if mouse clicked before collision
+                else if (bodyB.label == 'ball' && bodyA.label == 'spring') {
+                    this.downTime = new Date();
+                }
+                else if (bodyA.label == 'ball'  && bodyB.label== 'spring') {
+                    this.downTime = new Date();
+                }
                 
                 else if (bodyB.label == 'ball' && bodyA.label == 'bouncer') {
                     this.launchBall(bodyB, bodyA.position, .02);
@@ -332,9 +341,9 @@ class PinBall {
             Bodies.trapezoid(525,420,180,50,Math.PI/4, { isStatic: true, angle: -Math.PI/2 }),
 
             //left lane,
-            Bodies.fromVertices(92,690,[[{x:0,y:4},{x:0,y:140},{x:110,y:168},{x:6,y:4}]], {isStatic: true}),
+            Bodies.fromVertices(92,690,[[{x:0,y:10},{x:0,y:140},{x:110,y:168},{x:6,y:8}]], {isStatic: true}),
             //right lane
-            Bodies.fromVertices(452,690,[[{x:0,y:4},{x:0,y:140},{x:-100,y:168},{x:-6,y:4}]], {isStatic: true}),
+            Bodies.fromVertices(452,690,[[{x:0,y:10},{x:0,y:140},{x:-100,y:168},{x:-6,y:8}]], {isStatic: true}),
 
             //left ramp
             Bodies.rectangle(88, 804, 170, 30, { isStatic: true,  angle: Math.PI * .08}),

@@ -27,6 +27,7 @@ class Canvas {
     images:any = {
         'ball':new CanvasImage('ball'),
         'spring':new CanvasImage('spring'),
+        'spring-cap':new CanvasImage('spring-cap'),
         'bouncer':new CanvasImage('bouncer'),
         'bouncer-lit':new CanvasImage('bouncer-lit'),
         'bumper':new CanvasImage('bumper'),
@@ -110,12 +111,15 @@ class Canvas {
 
                     }
                     else if (part.label == 'spring') {
+                        let cap = this.images['spring-cap'].image;
                         if (game.mouseDown && game.ballOn(game.spring) != null) {
                             var p = Math.min((new Date().getTime()- game.downTime.getTime()) / 10000, .1) * 8;
                             c.drawImage(img, part.position.x-w/2, part.position.y-h/2 + 90 * p, 30, 90 - (90 * p))
+                            c.drawImage(cap, part.position.x-w/2+2, part.position.y-h+cap.height/2+6 + (90 * p))
                         }
                         else {
                             c.drawImage(img, part.position.x-w/2, part.position.y-h/2 )
+                            c.drawImage(cap, part.position.x-w/2+2, part.position.y-h+cap.height/2+6 )
                         }
                     }
                     else if (part.label == 'flipper-left' || part.label == 'flipper-right' ) {
