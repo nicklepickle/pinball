@@ -120,7 +120,7 @@ class PinBall {
         this.targetsHit.push(body);
         if (this.targetsHit.length == 8) {
             for(var t of this.targetsHit) {
-                t.render.fillStyle = '#111';
+                t.render.fillStyle = '#000';
             }
 
             let flash = (times:number) => {
@@ -132,7 +132,7 @@ class PinBall {
 
                 setTimeout(() => {
                     for(var t of this.targetsHit) {
-                        t.render.fillStyle = '#111';
+                        t.render.fillStyle = '#000';
                     }
                     if (times < 4) {
                         times++;
@@ -381,17 +381,17 @@ class PinBall {
             Bodies.rectangle(414, 710, 20, 50, { isStatic: true, label:'bumper', angle: Math.PI * .175}),
                 
             // targets (left to right)
-            Bodies.circle(100, 200, 10, {isStatic: true, isSensor:true, label:'target'}),
-            Bodies.circle(135, 150, 10, {isStatic: true, isSensor:true, label:'target'}),
+            Bodies.circle(100, 200, 10, {isStatic: true, isSensor:true, label:'target', render: {fillStyle: '#000'}}),
+            Bodies.circle(135, 150, 10, {isStatic: true, isSensor:true, label:'target', render: {fillStyle: '#000'}}),
             
-            Bodies.circle(190, 110, 10, {isStatic: true, isSensor:true, label:'target'}),
-            Bodies.circle(255, 90, 10, {isStatic: true, isSensor:true, label:'target'}),
+            Bodies.circle(190, 110, 10, {isStatic: true, isSensor:true, label:'target', render: {fillStyle: '#000'}}),
+            Bodies.circle(255, 90, 10, {isStatic: true, isSensor:true, label:'target', render: {fillStyle: '#000'}}),
 
-            Bodies.circle(325, 90, 10, {isStatic: true, isSensor:true, label:'target'}),
-            Bodies.circle(390, 110, 10, {isStatic: true, isSensor:true, label:'target'}),
+            Bodies.circle(325, 90, 10, {isStatic: true, isSensor:true, label:'target', render: {fillStyle: '#000'}}),
+            Bodies.circle(390, 110, 10, {isStatic: true, isSensor:true, label:'target', render: {fillStyle: '#000'}}),
             
-            Bodies.circle(445, 150, 10, {isStatic: true, isSensor:true, label:'target'}),
-            Bodies.circle(480, 200, 10, {isStatic: true, isSensor:true, label:'target'}),
+            Bodies.circle(445, 150, 10, {isStatic: true, isSensor:true, label:'target', render: {fillStyle: '#000'}}),
+            Bodies.circle(480, 200, 10, {isStatic: true, isSensor:true, label:'target', render: {fillStyle: '#000'}}),
         ]
 
         return bodies;
@@ -430,7 +430,7 @@ class PinBall {
 
         this.over.value = false;
         for(var t of this.targetsHit) {
-            t.render.fillStyle = '#111'
+            t.render.fillStyle = '#000'
         }
         this.targetsHit = [];
     }

@@ -158,6 +158,12 @@ class Canvas {
                         c.lineWidth = 1;
                         c.stroke();
                     }
+
+                    if (part.render.fillStyle == '#EEC') {
+                        c.globalAlpha = .4;
+                        c.drawImage(particleImage, part.position.x-30, part.position.y-30,60,60)
+                        c.globalAlpha = 1;
+                    }
                   
                 }
                 c.globalAlpha = 1;
