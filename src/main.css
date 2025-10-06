@@ -5,6 +5,14 @@
     url("../assets/LCD.ttf"),
 }
 
+@font-face {
+font-family: "title";
+src:
+    local("title"),
+    url("../assets/title.ttf"),
+}
+
+
 
 html,
 body {
@@ -22,13 +30,24 @@ body {
     user-select: none;
 }
 
+h1 {
+    position: absolute;
+    z-index:9999;
+    font-family:'title';
+    position:absolute;
+    top:0px;
+    margin-top:0px;
+    text-align:center;
+    color:#CFC;
+    font-size:16px;
+    width:600px;
+}
+
 
 #canvas {    
     top:0px;
     position:absolute;
     touch-action: none;
-
-
 }
 
 #app {
@@ -46,11 +65,10 @@ body {
     padding: 15px 0px 0px 20px;
     font-family:'LCD', 'Courier New', Courier, monospace;
     font-size:20px;
-
 }
 
 #scoreboard {
-    color:#096;
+    color:#0E6;
     position:absolute;
     z-index: 9999;
     display: flex;
