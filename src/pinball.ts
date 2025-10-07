@@ -4,6 +4,11 @@ import decomp from 'poly-decomp';
 import { Engine, World, Render, Runner, Bodies, Composite, Common, Body, Events, Collision, Vector} from 'matter-js';
 import Canvas from './canvas.ts'
 
+const LEFT: number = 0;
+const RIGHT: number = 2;
+
+type ControlStyle = "mouse-1" | "mouse-2" | "keyboard" | "touch";
+
 class Force {
     constructor(f:Matter.Vector, b:Body) {
         this.force = f;
@@ -14,11 +19,13 @@ class Force {
 }
 
 class PinBall {
+    controls: ControlStyle = "mouse-1";
     engine: Engine = Engine.create();
+    runner: Runner = Runner.create();
     $canvas: HTMLCanvasElement = document.getElementById('canvas') as HTMLCanvasElement; 
     canvas: Canvas = new Canvas(this.$canvas);
     useCanvas:boolean = true;
-    mouseDown:boolean = false;
+    springDown:boolean = false;
 
     // game values
     balls = new Bindable(3);
@@ -73,6 +80,34 @@ class PinBall {
         return b;
     }
 
+    flipBall(side: number) {
+        //console.log('side=' + side)
+        if (side == LEFT) {
+            let lp = this.leftFlipper.position;
+            Body.setPosition(this.leftFlipper,{x:lp.x,y:820});
+            Body.rotate(this.leftFlipper, Math.PI * -.15);
+            for(const b of this.activeBalls) {
+                if (Collision.collides(this.leftFlipper, b)) {
+                    let p = b.position;
+                    Body.setPosition(b,{ x:p.x, y:p.y-20})
+                    this.launchBall(b,this.leftFlipper.position,.05)
+                }
+            }
+        }
+        if (side == RIGHT) {
+            let rp = this.rightFlipper.position;
+            Body.setPosition(this.rightFlipper,{x:rp.x,y:820});
+            Body.rotate(this.rightFlipper, Math.PI * .15);
+            for(const b of this.activeBalls) {
+                if (Collision.collides(this.rightFlipper, b)) {
+                    let p = b.position;
+                    Body.setPosition(b,{ x:p.x, y:p.y-20})
+                    this.launchBall(b,this.rightFlipper.position,.05)
+                }
+            }
+        }
+    }
+
     launchBall(body:Body, from: Vector, velocity: number, angle:number=-999) {
         // if an angle wasn't passed use the angle to the "from" loacation
         if (angle == -999) {
@@ -84,6 +119,13 @@ class PinBall {
         let x = velocity * -Math.cos(angle);
         let y = velocity * -Math.sin(angle);
         this.forces.push(new Force({x:x, y:y},body)); // can't apply force in an event handler      
+    }
+
+    shootBall(ball:Body) {
+        var x = Math.random() * .01 - .005;
+        var y = -Math.min((new Date().getTime()- this.downTime.getTime()) / 10000, .1);
+        var force: Matter.Vector = {x:x, y:y};
+        Body.applyForce(ball,ball.position,force)
     }
 
     drainBall(ball:Body) {
@@ -150,53 +192,44 @@ class PinBall {
     }
 
     registerEvents() {
-        document.addEventListener('mousedown', () => {
-            this.mouseDown = true;
+        document.addEventListener('mousedown', (e) => {
+            this.springDown = true;
             if (this.ballOn(this.spring)) {
                 this.downTime = new Date();
             }
             else {
-                let lp = this.leftFlipper.position;
-                let rp = this.rightFlipper.position;
-                Body.setPosition(this.leftFlipper,{x:lp.x,y:820});
-                Body.rotate(this.leftFlipper, Math.PI * -.15);
-                Body.setPosition(this.rightFlipper,{x:rp.x,y:820});
-                Body.rotate(this.rightFlipper, Math.PI * .15);
-
-                for(const b of this.activeBalls) {
-                    if (Collision.collides(this.leftFlipper, b)) {
-                        let p = b.position;
-                        Body.setPosition(b,{ x:p.x, y:p.y-20})
-                        this.launchBall(b,this.leftFlipper.position,.05)
-                    }
-                    else if (Collision.collides(this.rightFlipper, b)) {
-                        let p = b.position;
-                        Body.setPosition(b,{ x:p.x, y:p.y-20})
-                        this.launchBall(b,this.rightFlipper.position,.05)
-                    }
+                if (this.controls == "mouse-1") {
+                    this.flipBall(LEFT);
+                    this.flipBall(RIGHT);
                 }
+                else if (this.controls == "mouse-2") {
+                    this.flipBall(e.button)
+                }
+            }
+
+            if (e.button == RIGHT) {
+                e.preventDefault();
+                return false;
             }
         })
 
-        document.addEventListener('mouseup', () => {
-            this.mouseDown = false;
+        document.addEventListener('mouseup', (e) => {
+            this.springDown = false;
             let ball = this.ballOn(this.spring);
             if (ball != null) {
-                //let force = -Math.min((new Date().getTime()- this.downTime.getTime()) / 5000, .1);
-                //this.ball.launch(this.spring.position,force,Math.PI/2)
-                
-                var x = Math.random() * .01 - .005;
-                var y = -Math.min((new Date().getTime()- this.downTime.getTime()) / 10000, .1);
-                var force: Matter.Vector = {x:x, y:y};
-                Body.applyForce(ball,ball.position,force)
+                this.shootBall(ball);
             }
-            let lp = this.leftFlipper.position;
-            let rp = this.rightFlipper.position;
-            Body.setPosition(this.leftFlipper,{x:lp.x,y:835});
-            Body.setPosition(this.rightFlipper,{x:rp.x,y:835});
-            Body.setAngle(this.leftFlipper, 0)
-            Body.setAngle(this.rightFlipper, 0)
-
+          
+            if (e.button == LEFT || this.controls != "mouse-2") {
+                let lp = this.leftFlipper.position;
+                Body.setPosition(this.leftFlipper,{x:lp.x,y:835});
+                Body.setAngle(this.leftFlipper, 0)
+            }
+            if (e.button == RIGHT || this.controls != "mouse-2") {
+                let rp = this.rightFlipper.position;
+                Body.setPosition(this.rightFlipper,{x:rp.x,y:835});
+                Body.setAngle(this.rightFlipper, 0)
+            }
         })
 
 
@@ -306,6 +339,48 @@ class PinBall {
 
     }
 
+    registerKeyboard() {
+        document.addEventListener('keydown', (e) => {
+            console.log(e.key)
+            if (this.controls == 'keyboard') {
+                if (e.key == 'ArrowDown' && !this.springDown) {     
+                    this.springDown = true;
+                    if (this.ballOn(this.spring)) {
+                        this.downTime = new Date();              
+                    }        
+                }
+                else if (e.key == 'ArrowLeft') {
+                    this.flipBall(LEFT);
+                }
+                else if (e.key == 'ArrowRight') {
+                    this.flipBall(RIGHT);
+                }
+            }
+        })
+
+        document.addEventListener('keyup', (e) => {
+            if (this.controls == 'keyboard') {
+                if (e.key == "ArrowDown") {       
+                    this.springDown = false;
+                    let ball = this.ballOn(this.spring);
+                    if (ball != null) {
+                        this.shootBall(ball);
+                    }      
+                }         
+                else if (e.key == 'ArrowLeft') {
+                    let lp = this.leftFlipper.position;
+                    Body.setPosition(this.leftFlipper,{x:lp.x,y:835});
+                    Body.setAngle(this.leftFlipper, 0)
+                }
+                else if (e.key == 'ArrowRight') {
+                    let rp = this.rightFlipper.position;
+                    Body.setPosition(this.rightFlipper,{x:rp.x,y:835});
+                    Body.setAngle(this.rightFlipper, 0)
+                }
+            }
+        })
+    }
+
     create(): Body[] {
         function getArchVerts(innerRadius: number, outerRadius: number, angle: number = 0): Matter.Vector[][]  {
             var archVerts = []
@@ -372,8 +447,6 @@ class PinBall {
             Bodies.rectangle(502,420, 20, 50, { isStatic: true, label:'bumper', angle: 0 }),
 
             // lower bumpers
-            //Bodies.rectangle(110, 680, 20, 150, { isStatic: true, label:'bumper', angle: Math.PI * .815}),
-            //Bodies.rectangle(432, 680, 20, 150, { isStatic: true, label:'bumper', angle: Math.PI * .175}),
             Bodies.rectangle(85, 642, 20, 50, { isStatic: true, label:'bumper', angle: Math.PI * .815}),
             Bodies.rectangle(131, 710, 20, 50, { isStatic: true, label:'bumper', angle: Math.PI * .815}),
 
@@ -398,8 +471,7 @@ class PinBall {
     }
 
     run() {
-        const runner: Runner = Runner.create();
-        Runner.run(runner, this.engine);
+        Runner.run(this.runner, this.engine);
         if (!this.useCanvas) {
             const render: Render = Render.create({
                 canvas: this.$canvas,
@@ -438,3 +510,4 @@ class PinBall {
 }
 
 export default PinBall;
+export type {ControlStyle};

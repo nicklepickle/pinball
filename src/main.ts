@@ -1,5 +1,5 @@
 import Cookie from './cookie.ts'
-import PinBall from './pinball.ts';
+import PinBall, {type ControlStyle} from './pinball.ts';
 
 window.addEventListener('load', () => {
     const game = new PinBall();
@@ -56,11 +56,36 @@ window.addEventListener('load', () => {
     })
 
     document.getElementById('open-instructions')?.addEventListener('click',() => {
+        game.runner.enabled = false;
         $instructions.style.display = 'block';
     })
 
     document.getElementById('x')?.addEventListener('click',() => {
+        game.runner.enabled = true;
         $instructions.style.display = 'none';
+    })
+
+    document.querySelectorAll('input[type="radio"]').forEach((radio) => {
+        radio.addEventListener('click', (e) => {
+            let target = e.target as HTMLInputElement
+            game.controls = target.value as ControlStyle;
+
+            const preventContextMenu = (e2:Event) => {
+                e2.preventDefault();
+                return false;
+            }
+            
+            if (game.controls == "mouse-2") {
+                document.addEventListener('contextmenu',preventContextMenu)
+            }
+            else {
+                document.removeEventListener('contextmenu', preventContextMenu)
+            }
+
+            if (game.controls == "keyboard") {
+                game.registerKeyboard()
+            }
+        })
     })
 
     let c = Cookie.getCookie('_ps_pb')
@@ -68,29 +93,6 @@ window.addEventListener('load', () => {
         game.high.value = JSON.parse(c).high;
     }
     game.run();
-
-    //debug
-    /*
-    game.$canvas.addEventListener('click', (e) => {
-        if (e.shiftKey) {
-            let xOffset:number = (Math.random() * 40)  -20
-            game.putBall(300 + xOffset,40);
-        }
-    })
- 
-
-    const downloadButton = document.getElementById('downloadButton') as HTMLAnchorElement;
-
-    downloadButton.addEventListener('click', function() {
-        // Convert the canvas to a data URL (PNG by default)
-        let dataURL = game.$canvas.toDataURL('image/png');
-
-        // Set the download attribute with a desired filename
-        downloadButton.download = 'my-canvas-image.png';
-
-        // Set the href attribute to the data URL
-        downloadButton.href = dataURL;       
-    });   */
     
 })
 
