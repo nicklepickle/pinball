@@ -340,8 +340,11 @@ class PinBall {
     }
 
     registerKeyboard() {
+        let LeftDown: boolean = false;
+        let RightDown: boolean = false;
+
         document.addEventListener('keydown', (e) => {
-            console.log(e.key)
+            //console.log(e.key)
             if (this.controls == 'keyboard') {
                 if (e.key == 'ArrowDown' && !this.springDown) {     
                     this.springDown = true;
@@ -349,10 +352,12 @@ class PinBall {
                         this.downTime = new Date();              
                     }        
                 }
-                else if (e.key == 'ArrowLeft') {
+                else if (e.key == 'ArrowLeft' && !LeftDown) {
+                    LeftDown = true;
                     this.flipBall(LEFT);
                 }
-                else if (e.key == 'ArrowRight') {
+                else if (e.key == 'ArrowRight' && !RightDown) {
+                    RightDown = true;
                     this.flipBall(RIGHT);
                 }
             }
@@ -368,11 +373,13 @@ class PinBall {
                     }      
                 }         
                 else if (e.key == 'ArrowLeft') {
+                    LeftDown = false;
                     let lp = this.leftFlipper.position;
                     Body.setPosition(this.leftFlipper,{x:lp.x,y:835});
                     Body.setAngle(this.leftFlipper, 0)
                 }
                 else if (e.key == 'ArrowRight') {
+                    RightDown = false;
                     let rp = this.rightFlipper.position;
                     Body.setPosition(this.rightFlipper,{x:rp.x,y:835});
                     Body.setAngle(this.rightFlipper, 0)
