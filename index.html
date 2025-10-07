@@ -10,8 +10,7 @@
   <body>
     <div id="app">
       <h1>Galaxy Mission</h1>
-    <!--
-        <img src="/assets/table-background.png" style="position: absolute;" /> -->
+
       <div id="scoreboard">
         <div id="score">0 <br />0</div>
         <div>
@@ -22,14 +21,45 @@
 
     <div id="score-background">
         <div>888888888 <br />888888888</div>
-        <div>
-            <p>888888888</p>
-            <p>888888888</p>
-        </div>
+        <div><p>888888888</p><p>888888888</p></div>
     </div>
 
       <div id="battery"></div>
       <canvas id="canvas"></canvas>
+
+      <div id="instructions">
+          <a id="x">&times;</a>
+          <h2>Galaxy Mission</h2>
+          <h3>FOR AMUSEMENT ONLY</h3>
+          <div style="text-align:center;">
+              1 PLAY - 1 QUARTER - 3 BALLS<br />                    
+              10,000 points = Bonus Ball<br /><br />
+          </div>        
+          <div  class="flex">
+              <div >
+                  <span>SCORING</span> <br /><br />
+                  <img src="assets/icon-bumper1.png"> &nbsp; Side Bumper - 10 points<br />
+                  <img src="assets/icon-star2.png"> &nbsp; Star Bumper - 100 points<br />
+                  <img src="assets/icon-star1.png"> &nbsp; Hidden Star x 8 - 1,000 points<br />
+                  <img src="assets/icon-rocket.png"> &nbsp; Rocket - 10 - 400 points<br />
+
+              </div>
+              <div style="margin-left:5%; line-height:22px;">
+                  <span>CONTROL STYLE</span><br /><br />
+                  <input type="radio" name="play" value="mouse-1" checked/> 1 Button Mouse<br />
+                  <input type="radio" name="play" value="mouse-2" /> 2 Button Mouse<br />
+                  <input type="radio" name="play" value="keyboard" /> Keyboard  &#8592; &#8595; &#8594;<br />
+                  <input type="radio" name="play" value="touch" /> Touch Screen<br />
+              </div>
+          </div>
+          <div style="text-align:center; padding-top:20px;">
+            <a href="https://PHYSLE.com"><img src="assets/phylse-logo-black.png" class="logo"/></a>
+          </div>
+      </div>
+    </div>
+
+    <div id="open-instructions">
+      <img src="assets/instructions-mini.png" />
     </div>
     <!--
 <a id="downloadButton" style="position:absolute; top: 930px; z-index: 999999;">DOWNLOAD </a>-->

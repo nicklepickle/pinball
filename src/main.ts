@@ -7,6 +7,7 @@ window.addEventListener('load', () => {
     const $balls: HTMLElement = document.getElementById('balls') as HTMLElement;
     const $restart: HTMLElement = document.getElementById('restart') as HTMLElement;
     const $battery: HTMLElement = document.getElementById('battery') as HTMLElement;
+    const $instructions: HTMLElement = document.getElementById('instructions') as HTMLElement;
 
     game.balls.addEventListener('change',() => {
         $balls.innerHTML=game.balls.value + ' BALLS';
@@ -54,6 +55,14 @@ window.addEventListener('load', () => {
         game.restart();
     })
 
+    document.getElementById('open-instructions')?.addEventListener('click',() => {
+        $instructions.style.display = 'block';
+    })
+
+    document.getElementById('x')?.addEventListener('click',() => {
+        $instructions.style.display = 'none';
+    })
+
     let c = Cookie.getCookie('_ps_pb')
     if (c) {
         game.high.value = JSON.parse(c).high;
@@ -69,8 +78,6 @@ window.addEventListener('load', () => {
         }
     })
  
-     
-
 
     const downloadButton = document.getElementById('downloadButton') as HTMLAnchorElement;
 
@@ -84,10 +91,6 @@ window.addEventListener('load', () => {
         // Set the href attribute to the data URL
         downloadButton.href = dataURL;       
     });   */
-
-
-
-
     
 })
 
