@@ -17,86 +17,41 @@
             background-color:#666;
             font-family: arial, sans-serif;
         }
-        :root {
-            --container-width: 10vmin;
-            --factor: 30; /* Find the factor by which you'd want to arrive at the right font-size. */
-        }
+
         .box {
-
-            width: var(--container-width);
-            height:calc(var(--container-width) * .75);
-            /* border: 2vmin solid black; */
-
+            width:500px;
             border: 2px solid black;
             background-color:#FFF;
-            padding: calc(var(--container-width) / 20);
-            font-size: calc(var(--container-width) / var(--factor));
+            padding:12px;
+        }
 
+        .box img {
+            width:20px;
         }
 
         .flex {
-            
-            /* line-height: 1.75; * /
-            /* margin-left: calc(var(--container-width) / var(--factor)* 5); */
             display:flex;
         }
 
-        .flex div {
-            width:50%;
-
-        }
 
         
         .box h2 {
             text-align: center;
-            font-size: calc(var(--container-width) / var(--factor) * 2);
-            line-height: 1.75;
             font-family: 'title';
             margin:0;
 
         }
 
-        .box span {
-            font-size: calc(var(--container-width) / var(--factor) * 1.5);
-        }
-
         .box h3 {
             text-align: center;
-            font-size: calc(var(--container-width) / var(--factor));
-            line-height: 1.75;
-
             margin-top:0;
             text-decoration:underline;
 
         }
 
-        input  {
-            display:none;
-        }
+
     </style>
-    <script>
 
-        window.addEventListener('load', () => {
-            $root = document.querySelector(':root');
-            document.querySelector('.box').addEventListener('click',(e) => {
-                const styles = window.getComputedStyle($root);
-                let w = styles.getPropertyValue('--container-width')
-                if (w == '10vmin') {
-                    $root.style.setProperty('--container-width', '80vmin');
-                    document.querySelectorAll('input').forEach((e) => {
-                        e.style.display = 'inline';
-                    })
-                }
-                else {
-                    $root.style.setProperty('--container-width', '10vmin');
-                    document.querySelectorAll('input').forEach((e) => {
-                        e.style.display = 'none';
-                    })
-                }
-            })
-
-        })
-    </script>
   </head>
   <body>
     <!-- https://codepen.io/marvindanig/pen/RwJzXPB -->
@@ -104,19 +59,23 @@
         <div class="box">
             <h2>Galaxy Mission</h2>
             <h3>FOR AMUSEMENT ONLY</h3>
-            <div style="text-align:center;">1 PLAY - 1 QUARTER - 3 BALLS<br /><br /></div>        
+            <div style="text-align:center;">
+                1 PLAY - 1 QUARTER - 3 BALLS<br />                    
+                10,000 points = Bonus Ball<br /><br />
+            </div>        
             <div  class="flex">
                 <div >
-                    
-                    <span> &#9634;</span> Side Bumper - 10 pts.<br />
-                    <span>&#9055;</span>  Star Bumper - 100 pts.<br />
-                    <span>&#9788;</span> Hidden Star x 8 - 1,000 pts.<br />
-                    <br />10,000 pts. - Bonus Ball
+                    SCORING <br /><br />
+                    <img src="assets/icon-bumper1.png"> &nbsp; Side Bumper - 10 points<br />
+                    <img src="assets/icon-star2.png"> &nbsp; Star Bumper - 100 points<br />
+                    <img src="assets/icon-star1.png"> &nbsp; Hidden Star x 8 - 1,000 points<br />
+                    <img src="assets/icon-rocket.png"> &nbsp; Rocket - 10 - 400 points<br />
+
                 </div>
                 <div style="margin-left:5%;">
                     PLAY STYLE<br /><br />
-                    <input type="radio" name="play" value="mouse-1" checked/> 1 Button Mouse<br />
-                    <input type="radio" name="play" value="mouse-2" /> 2 Button Mouse<br />
+                    <input type="radio" name="play" value="mouse-1" checked/> 1 Button Mouse<br /><br />
+                    <input type="radio" name="play" value="mouse-2" /> 2 Button Mouse<br /><br />
                     <input type="radio" name="play" value="keyboard" /> Keyboard  &#8592; &#8595; &#8594;
                 </div>
             </div>
