@@ -9,6 +9,30 @@ window.addEventListener('load', () => {
     const $battery: HTMLElement = document.getElementById('battery') as HTMLElement;
     const $instructions: HTMLElement = document.getElementById('instructions') as HTMLElement;
 
+    const preventContextMenu = (e2:Event) => {
+        e2.preventDefault();
+        return false;
+    }
+
+    const c = Cookie.getCookie('_ps_pb')
+    
+    if (c) {
+        let state = JSON.parse(c)
+        console.log(state);
+        game.high.value = state.high;
+        game.controls = state.controls;
+        
+        if (game.controls == "keyboard") {
+            game.registerKeyboard()
+        }
+        else if (game.controls == "touch") {
+            game.registerTouch()
+        }
+        else if (game.controls == "mouse-2") {
+            document.addEventListener('contextmenu',preventContextMenu)
+        }
+    }
+
     game.balls.addEventListener('change',() => {
         $balls.innerHTML=game.balls.value + ' BALLS';
     })
@@ -20,7 +44,7 @@ window.addEventListener('load', () => {
     game.high.addEventListener('change',() => {
         $score.innerHTML=game.score.value + '<br />' + game.high.value;
 
-        let c = {high:game.high.value}
+        let c = {high:game.high.value, controls:game.controls}
         Cookie.setCookie('_ps_pb',JSON.stringify(c));
     })
 
@@ -65,16 +89,17 @@ window.addEventListener('load', () => {
         $instructions.style.display = 'none';
     })
 
+
+
     document.querySelectorAll('input[type="radio"]').forEach((radio) => {
+        if (radio.value == game.controls) {
+            console.log(radio.value )
+            radio.checked = true;
+        }
         radio.addEventListener('click', (e) => {
             let target = e.target as HTMLInputElement
             game.controls = target.value as ControlStyle;
-
-            const preventContextMenu = (e2:Event) => {
-                e2.preventDefault();
-                return false;
-            }
-            
+ 
             if (game.controls == "mouse-2") {
                 document.addEventListener('contextmenu',preventContextMenu)
             }
@@ -85,13 +110,16 @@ window.addEventListener('load', () => {
             if (game.controls == "keyboard") {
                 game.registerKeyboard()
             }
+            else if (game.controls == "touch") {
+                game.registerTouch()
+            }
+
+            let c = {high:game.high.value, controls:game.controls}
+            Cookie.setCookie('_ps_pb',JSON.stringify(c));
         })
     })
 
-    let c = Cookie.getCookie('_ps_pb')
-    if (c) {
-        game.high.value = JSON.parse(c).high;
-    }
+
     game.run();
     
 })

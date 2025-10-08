@@ -388,6 +388,38 @@ class PinBall {
         })
     }
 
+    registerTouch() {
+        document.addEventListener("touchstart", (e) => {
+            e.preventDefault();
+            this.springDown = true;
+            if (this.ballOn(this.spring)) {
+                this.downTime = new Date();
+            }
+
+            this.flipBall(LEFT);
+            this.flipBall(RIGHT);
+        });
+
+
+        document.addEventListener("touchend", (e) => {
+            this.springDown = false;
+            let ball = this.ballOn(this.spring);
+            if (ball != null) {
+                this.shootBall(ball);
+            }
+          
+
+            let lp = this.leftFlipper.position;
+            Body.setPosition(this.leftFlipper,{x:lp.x,y:835});
+            Body.setAngle(this.leftFlipper, 0)
+
+            let rp = this.rightFlipper.position;
+            Body.setPosition(this.rightFlipper,{x:rp.x,y:835});
+            Body.setAngle(this.rightFlipper, 0)
+
+        });
+    }
+
     create(): Body[] {
         function getArchVerts(innerRadius: number, outerRadius: number, angle: number = 0): Matter.Vector[][]  {
             var archVerts = []
