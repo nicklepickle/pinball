@@ -8,19 +8,20 @@ window.addEventListener('load', () => {
     const $restart: HTMLElement = document.getElementById('restart') as HTMLElement;
     const $battery: HTMLElement = document.getElementById('battery') as HTMLElement;
     const $instructions: HTMLElement = document.getElementById('instructions') as HTMLElement;
-
     const preventContextMenu = (e2:Event) => {
         e2.preventDefault();
         return false;
     }
 
-    const c = Cookie.getCookie('_ps_pb')
-    
-    if (c) {
-        let state = JSON.parse(c)
-        console.log(state);
+
+    const cookie = Cookie.getCookie('_ps_pb');
+
+    if (cookie) {
+        let state = JSON.parse(cookie)
+        //console.log(state);
         game.high.value = state.high;
         game.controls = state.controls;
+        $score.innerHTML=game.score.value + '<br />' + game.high.value;
         
         if (game.controls == "keyboard") {
             game.registerKeyboard()
@@ -32,6 +33,8 @@ window.addEventListener('load', () => {
             document.addEventListener('contextmenu',preventContextMenu)
         }
     }
+
+
 
     game.balls.addEventListener('change',() => {
         $balls.innerHTML=game.balls.value + ' BALLS';
@@ -89,13 +92,17 @@ window.addEventListener('load', () => {
         $instructions.style.display = 'none';
     })
 
+    
 
 
-    document.querySelectorAll('input[type="radio"]').forEach((radio) => {
+    // do this after reading the cookie and game.controls is set
+    document.querySelectorAll('input[type="radio"]').forEach((el) => {
+        const radio = el as HTMLInputElement;
         if (radio.value == game.controls) {
-            console.log(radio.value )
+            //console.log(radio.value )
             radio.checked = true;
         }
+        
         radio.addEventListener('click', (e) => {
             let target = e.target as HTMLInputElement
             game.controls = target.value as ControlStyle;

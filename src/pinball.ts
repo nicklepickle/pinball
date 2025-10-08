@@ -395,13 +395,14 @@ class PinBall {
             if (this.ballOn(this.spring)) {
                 this.downTime = new Date();
             }
-
-            this.flipBall(LEFT);
-            this.flipBall(RIGHT);
+            else {
+                this.flipBall(LEFT);
+                this.flipBall(RIGHT);
+            }
         });
 
 
-        document.addEventListener("touchend", (e) => {
+        document.addEventListener("touchend", () => {
             this.springDown = false;
             let ball = this.ballOn(this.spring);
             if (ball != null) {
