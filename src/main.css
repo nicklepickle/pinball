@@ -28,20 +28,6 @@ body {
     user-select: none;
 }
 
-h1 {
-    position: absolute;
-    z-index:9999;
-    font-family:'title';
-    position:absolute;
-    top:0px;
-    margin-top:0px;
-    text-align:center;
-    color:#CFC;
-    font-size:16px;
-    width:600px;
-}
-
-
 #canvas {    
     top:0px;
     position:absolute;
@@ -96,7 +82,7 @@ h1 {
 #restart a{
     color:#0E6;
 }
-
+/*
 #battery {
     color:#fff;
     position:absolute;
@@ -117,7 +103,7 @@ h1 {
     top: 526px;
     z-index: 9999;
 }
-
+*/
 #open-instructions {
     position: absolute;
     top: 805px;

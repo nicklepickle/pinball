@@ -478,8 +478,8 @@ class PinBall {
             Bodies.circle(370, 210, 40, {isStatic: true, label:'bouncer'}),
 
             // battery
+            Bodies.rectangle(280, 550, 30, 30, {isStatic: true, label:'battery'}), // center segment must be 1st
             Bodies.circle(280, 535, 15, {isStatic: true, label:'battery'}),
-            Bodies.rectangle(280, 550, 30, 30, {isStatic: true, label:'battery'}),
             Bodies.circle(280, 565, 15, {isStatic: true, label:'battery'}),
 
             // upper bumpers

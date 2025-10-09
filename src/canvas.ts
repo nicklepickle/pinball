@@ -34,7 +34,8 @@ class Canvas {
         'flipper-left':new CanvasImage('flipper-left'),
         'flipper-right':new CanvasImage('flipper-right'),
         'particle':new CanvasImage('particle'),
-        'table-background':new CanvasImage('table-background')
+        'table-background':new CanvasImage('table-background'),
+        'battery':new CanvasImage('battery')
     }
 
     constructor(canvas: HTMLCanvasElement) {
@@ -53,6 +54,12 @@ class Canvas {
 
         c.drawImage(this.images['table-background'].image,0,0)
 
+        c.font = '16px title';
+        c.fillStyle = '#CFC';
+        c.textAlign = 'center';
+        c.textBaseline = 'middle';
+        c.fillText('Galaxy Mission', 300, 12);
+
         let particleImage = this.images['particle'].image;
         let pw = particleImage.width;
         let ph = particleImage.height;
@@ -64,6 +71,7 @@ class Canvas {
         }
         c.globalAlpha = 1;
         this.particles = this.particles.filter(p => p.alpha > 0);
+        let drewBattery = false;
 
         for (var i = 0; i < game.engine.world.bodies.length; i++) {
             body = game.engine.world.bodies[i];
@@ -85,8 +93,25 @@ class Canvas {
                     let w:number = img.width;
                     let h:number = img.height;
 
-                    if (part.label == 'ball' ) {
+                    if (part.label == 'ball') {
                         c.drawImage(img, part.position.x-w/2, part.position.y-h/2)
+                    }
+                    else if (part.label == 'battery' && !drewBattery) {
+                        c.drawImage(img, part.position.x-w/2, part.position.y-h/2)
+
+
+                        let p =  game.batteryLevel.value/game.batteryMax;
+                        let h2 = 30 - 30 * p;
+
+                        let r = Math.min(250, (250 * ((100 - (p * 100)) / 80)));
+                        let g = Math.min(220, (240 * ((p * 100) / 40)));
+                        let rgb = "RGB(" + r.toString() + "," + g.toString() + ",0)";
+
+                         c.fillStyle = rgb// 'green'//rgb; // Set the fill color
+                        c.fillRect(part.position.x-12, part.position.y-15+h2, 24, 30-h2); // x, y, width, height
+
+
+                        drewBattery = true;
                     }
                     else if (part.label == 'bouncer') {
                         if (game.ballOn(body)) {
@@ -129,7 +154,21 @@ class Canvas {
                         c.setTransform(1,0,0,1,0,0); 
                     } 
                 }
-                else if (part.label == 'target' || part.label == 'battery') {
+                else if (part.label == 'target' && part.circleRadius) {
+                    c.beginPath();
+                    c.arc(part.position.x, part.position.y, part.circleRadius, 0, 2 * Math.PI);
+                    if (part.render.fillStyle == '#EEC') {
+                        c.globalAlpha = .4;
+                        c.drawImage(particleImage, part.position.x-30, part.position.y-30,60,60)
+                        c.globalAlpha = 1;
+                    }
+                    if (part.render.fillStyle) {
+                        c.fillStyle = part.render.fillStyle;
+                    }
+                    c.fill();
+                    
+                }
+                else if (part.label == 'battery') {
 
                     // part polygon
                   
@@ -150,8 +189,8 @@ class Canvas {
 
                     if (this.fill) {
                         if (part.render.fillStyle) {
-                            c.fillStyle = part.render.fillStyle;
-                            //c.fillStyle = '#00FF00'
+                            //c.fillStyle = part.render.fillStyle;
+                            c.fillStyle = '#00FF00'
                         }
                         c.fill();
                     } else {
@@ -159,11 +198,7 @@ class Canvas {
                         c.stroke();
                     }
 
-                    if (part.render.fillStyle == '#EEC') {
-                        c.globalAlpha = .4;
-                        c.drawImage(particleImage, part.position.x-30, part.position.y-30,60,60)
-                        c.globalAlpha = 1;
-                    }
+
                   
                 }
                 c.globalAlpha = 1;
