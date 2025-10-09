@@ -33,7 +33,6 @@ body {
     position:absolute;
     touch-action: none;
     width: 100%;
-
     max-width: 600px;
 }
 
@@ -42,32 +41,32 @@ body {
     height: 100%;
 }
 
-
-#score-background {
-    color:#030;
+#scoreboard, #score-background {
     position:absolute;
     z-index: 8888;
     display: flex;
-    width: 560px;
-    padding: 6px 0px 0px 20px;
+    width:100%;
+    max-width: 600px;
     font-family:'LCD', 'Courier New', Courier, monospace;
-    font-size:20px;
+    /*font-size:20px;*/
+    container-type: size;
+}
+
+#score-background {
+    color:#030;
+    z-index: 8888;
 }
 
 #scoreboard {
     color:#0E6;
-    position:absolute;
     z-index: 9999;
-    display: flex;
-    width: 560px;
-    padding: 6px 0px 0px 20px;
-    font-family:'LCD', 'Courier New', Courier, monospace;
-    font-size:20px;
-
 }
 
 #scoreboard div, #score-background div {
+    margin:6px;
     width:50%;
+    container-type: size;
+    font-size:3.3cqw;
 }
 
 #restart, #balls, #score-background p {
@@ -82,28 +81,7 @@ body {
 #restart a{
     color:#0E6;
 }
-/*
-#battery {
-    color:#fff;
-    position:absolute;
-    left:268px;
-    top: 535px;
-    z-index: 9998;
-    background-color:#C00;
-    width:24px;
-    height:0px;
-    border-top:30px solid #111;
-    opacity: 0.8;
 
-}
-
-#reflection {
-    position:absolute;
-    left:269px;
-    top: 526px;
-    z-index: 9999;
-}
-*/
 #open-instructions {
     position: absolute;
     top: 805px;
