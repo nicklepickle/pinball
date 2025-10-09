@@ -46,6 +46,9 @@ h1 {
     top:0px;
     position:absolute;
     touch-action: none;
+    width: 100%;
+
+    max-width: 600px;
 }
 
 #app {
@@ -99,11 +102,20 @@ h1 {
     position:absolute;
     left:268px;
     top: 535px;
-    z-index: 9999;
+    z-index: 9998;
     background-color:#C00;
     width:24px;
     height:0px;
     border-top:30px solid #111;
+    opacity: 0.8;
+
+}
+
+#reflection {
+    position:absolute;
+    left:269px;
+    top: 526px;
+    z-index: 9999;
 }
 
 #open-instructions {
