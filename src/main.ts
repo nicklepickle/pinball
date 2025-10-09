@@ -6,7 +6,7 @@ window.addEventListener('load', () => {
     const $score: HTMLElement = document.getElementById('score') as HTMLElement;
     const $balls: HTMLElement = document.getElementById('balls') as HTMLElement;
     const $restart: HTMLElement = document.getElementById('restart') as HTMLElement;
-    const $battery: HTMLElement = document.getElementById('battery') as HTMLElement;
+    //const $battery: HTMLElement = document.getElementById('battery') as HTMLElement;
     const $instructions: HTMLElement = document.getElementById('instructions') as HTMLElement;
     const preventContextMenu = (e2:Event) => {
         e2.preventDefault();
@@ -62,7 +62,7 @@ window.addEventListener('load', () => {
             $restart.style.display = 'none'
         }
     })
-
+    /*
     game.batteryLevel.addEventListener('change',() => {
         let p =  game.batteryLevel.value/game.batteryMax;
         $battery.style.borderTopWidth = (30 - (30 * p)).toString()+'px';
@@ -77,6 +77,7 @@ window.addEventListener('load', () => {
         $battery.style.backgroundColor = rgb
 
     })
+        */
 
     document.querySelector('#restart a')?.addEventListener('click', () => {
         game.restart();
@@ -96,8 +97,8 @@ window.addEventListener('load', () => {
 
 
     // do this after reading the cookie and game.controls is set
-    document.querySelectorAll('input[type="radio"]').forEach((el) => {
-        const radio = el as HTMLInputElement;
+    document.querySelectorAll('input[type="radio"]').forEach((result) => {
+        const radio = result as HTMLInputElement;
         if (radio.value == game.controls) {
             //console.log(radio.value )
             radio.checked = true;
