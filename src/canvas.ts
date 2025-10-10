@@ -4,7 +4,7 @@ class CanvasImage {
     image:HTMLImageElement
     constructor(label:string) {
         this.image = new Image()
-        this.image.src = '/assets/' + label + '.png';
+        this.image.src = 'assets/' + label + '.png';
     }
 }
 
@@ -29,7 +29,6 @@ class Canvas {
         'spring':new CanvasImage('spring'),
         'spring-cap':new CanvasImage('spring-cap'),
         'bouncer':new CanvasImage('bouncer'),
-        'bouncer-lit':new CanvasImage('bouncer-lit'),
         'bumper':new CanvasImage('bumper'),
         'flipper-left':new CanvasImage('flipper-left'),
         'flipper-right':new CanvasImage('flipper-right'),
