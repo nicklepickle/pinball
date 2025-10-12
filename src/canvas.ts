@@ -6,15 +6,23 @@ class CanvasImage {
         this.image = new Image()
         this.image.src = 'assets/' + label + '.png';
     }
+    draw(context: CanvasRenderingContext2D, x:number, y:number, angle:number = 0) {
+        context.setTransform(1, 0, 0, 1, x, y); 
+        if (angle != 0)
+            context.rotate(angle)
+        context.drawImage(this.image, -this.image.width/2, -this.image.height/2)
+        context.setTransform(1,0,0,1,0,0); 
+    }
 }
 
 class CanvasParticle {
     x:number;
     y:number;
     alpha:number;
+    offset:number=75;
     constructor(x:number, y:number, alpha:number) {
-        this.x=x;
-        this.y=y;
+        this.x=x-this.offset;
+        this.y=y-this.offset;
         this.alpha=alpha;
     }
 }
@@ -42,6 +50,7 @@ class Canvas {
         this.context = canvas.getContext("2d");
     }
 
+
     render(game: PinBall) {
         let body = null;
         let part = null;
@@ -60,13 +69,11 @@ class Canvas {
         c.fillText('Galaxy Mission', 300, 12);
 
         let particleImage = this.images['particle'].image;
-        let pw = particleImage.width;
-        let ph = particleImage.height;
+
         for (var i = 0; i < this.particles.length; i++) {
             c.globalAlpha = this.particles[i].alpha;
             c.drawImage(particleImage, this.particles[i].x, this.particles[i].y)
-            this.particles[i].alpha -= .2;
-            
+            this.particles[i].alpha -= .2;      
         }
         c.globalAlpha = 1;
         this.particles = this.particles.filter(p => p.alpha > 0);
@@ -86,72 +93,60 @@ class Canvas {
                     continue;
 
                 let canvasImage:CanvasImage = this.images[part.label]
-
+                // render bodies
                 if (canvasImage) {
-                    let img:HTMLImageElement = canvasImage.image
-                    let w:number = img.width;
-                    let h:number = img.height;
-
                     if (part.label == 'ball') {
-                        c.drawImage(img, part.position.x-w/2, part.position.y-h/2)
-                    }
-                    else if (part.label == 'battery' && !drewBattery) {
-                        c.drawImage(img, part.position.x-w/2, part.position.y-h/2)
-
-
-                        let p =  game.batteryLevel.value/game.batteryMax;
-                        let h2 = 30 - 30 * p;
-
-                        let r = Math.min(250, (250 * ((100 - (p * 100)) / 80)));
-                        let g = Math.min(220, (240 * ((p * 100) / 40)));
-                        let rgb = "RGB(" + r.toString() + "," + g.toString() + ",0)";
-
-                         c.fillStyle = rgb// 'green'//rgb; // Set the fill color
-                        c.fillRect(part.position.x-12, part.position.y-15+h2, 24, 30-h2); // x, y, width, height
-
-
-                        drewBattery = true;
-                    }
-                    else if (part.label == 'bouncer') {
-                        if (game.ballOn(body)) {
-                            
-                            this.particles.push(new CanvasParticle(part.position.x-pw/2, part.position.y-ph/2, .8))
-                        }
-                        c.drawImage(img, part.position.x-w/2, part.position.y-h/2)
-
-
-                    }
-                    else if (part.label == 'bumper') {
-                        if (game.ballOn(body)) {
-                            let px = 8 * -Math.cos(part.angle);
-                            let py = 8 * -Math.sin(part.angle);
-                            this.particles.push(new CanvasParticle(part.position.x-pw/2+px, part.position.y-ph/2+py, .4))
-                        }
-
-                        c.setTransform(1, 0, 0, 1, part.position.x, part.position.y); 
-                        c.rotate(part.angle)
-                        c.drawImage(img, -w/2, -h/2)
-                        c.setTransform(1,0,0,1,0,0); 
-
+                        canvasImage.draw(c,body.position.x,body.position.y)
                     }
                     else if (part.label == 'spring') {
-                        let cap = this.images['spring-cap'].image;
+                        let cap = this.images['spring-cap'];
+                        let w:number = canvasImage.image.width;
+                        let h:number = canvasImage.image.height;
                         if (game.springDown && game.ballOn(game.spring) != null) {
                             var p = Math.min((new Date().getTime()- game.downTime.getTime()) / 10000, .1) * 8;
-                            c.drawImage(img, part.position.x-w/2, part.position.y-h/2 + 90 * p, 30, 90 - (90 * p))
-                            c.drawImage(cap, part.position.x-w/2+2, part.position.y-h+cap.height/2+6 + (90 * p))
+                            c.drawImage(canvasImage.image, part.position.x-w/2, part.position.y-h/2 + 90 * p, 30, 90 - (90 * p))
+                            cap.draw(c, part.position.x, part.position.y - 60  + (90 * p))
                         }
                         else {
-                            c.drawImage(img, part.position.x-w/2, part.position.y-h/2 )
-                            c.drawImage(cap, part.position.x-w/2+2, part.position.y-h+cap.height/2+6 )
+                            canvasImage.draw(c, body.position.x,body.position.y)
+                            cap.draw(c, part.position.x, part.position.y - 60 )
                         }
                     }
-                    else if (part.label == 'flipper-left' || part.label == 'flipper-right' ) {
-                        c.setTransform(1, 0, 0, 1, part.position.x, part.position.y); 
-                        c.rotate(part.angle)
-                        c.drawImage(img, -w/2, -h/2)
-                        c.setTransform(1,0,0,1,0,0); 
-                    } 
+                    else if (part.label == 'battery') {
+                        if (!drewBattery) {
+                            canvasImage.draw(c,body.position.x,body.position.y)
+
+                            let p =  game.batteryLevel.value/game.batteryMax;
+                            let h2 = 30 - 30 * p;
+
+                            let r = Math.min(250, (250 * ((100 - (p * 100)) / 80)));
+                            let g = Math.min(220, (240 * ((p * 100) / 40)));
+                            let rgb = "RGB(" + r.toString() + "," + g.toString() + ",0)";
+
+                            c.fillStyle = rgb;
+                            c.fillRect(part.position.x-12, part.position.y-15+h2, 24, 30-h2); // x, y, width, height
+
+                            drewBattery = true;
+                        }
+                    }
+                    else {
+                        canvasImage.draw(c,body.position.x,body.position.y,body.angle)
+                    }
+                }
+
+
+                // add particles
+                if (part.label == 'bouncer') {
+                    if (game.ballOn(body)) {
+                        this.particles.push(new CanvasParticle(part.position.x, part.position.y, .8))
+                    }
+                }
+                else if (part.label == 'bumper') {
+                    if (game.ballOn(body)) {
+                        let px = 16 * -Math.cos(part.angle);
+                        let py = 16 * -Math.sin(part.angle);
+                        this.particles.push(new CanvasParticle(part.position.x+px, part.position.y+py, .4))
+                    }
                 }
                 else if (part.label == 'target' && part.circleRadius) {
                     c.beginPath();
@@ -167,40 +162,7 @@ class Canvas {
                     c.fill();
                     
                 }
-                else if (part.label == 'battery') {
 
-                    // part polygon
-                  
-                    if (part.circleRadius) {
-                        c.beginPath();
-                        c.arc(part.position.x, part.position.y, part.circleRadius, 0, 2 * Math.PI);
-                    } else {
-                        c.beginPath();
-                        c.moveTo(part.vertices[0].x, part.vertices[0].y);
-
-                        for (var j = 1; j < part.vertices.length; j++) {
-                            c.lineTo(part.vertices[j].x, part.vertices[j].y);
-                        }
-
-                        c.lineTo(part.vertices[0].x, part.vertices[0].y);
-                        c.closePath();
-                    }
-
-                    if (this.fill) {
-                        if (part.render.fillStyle) {
-                            //c.fillStyle = part.render.fillStyle;
-                            c.fillStyle = '#00FF00'
-                        }
-                        c.fill();
-                    } else {
-                        c.lineWidth = 1;
-                        c.stroke();
-                    }
-
-
-                  
-                }
-                c.globalAlpha = 1;
             }
         }
     };
