@@ -21,17 +21,31 @@ window.addEventListener('load', () => {
         //console.log(state);
         game.high.value = state.high;
         game.controls = state.controls;
-        $score.innerHTML=game.score.value + '<br />' + game.high.value;
+        $score.innerHTML=`<p>${game.score.value}</p><p>${game.high.value}</p>`;
         
-        if (game.controls == "keyboard") {
+        if (game.controls == 'keyboard') {
             game.registerKeyboard()
         }
-        else if (game.controls == "touch") {
+        else if (game.controls == 'touch') {
             game.registerTouch()
         }
-        else if (game.controls == "mouse-2") {
+        else if (game.controls == 'mouse-2') {
             document.addEventListener('contextmenu',preventContextMenu)
         }
+
+
+    }
+    else if (navigator.maxTouchPoints && navigator.maxTouchPoints > 0) {
+        game.controls = 'touch';
+        game.registerTouch();
+        
+    }
+
+    if (!game.useCanvas) {
+        // show debug
+        const $debug = document.getElementById('debug') as HTMLElement;
+        $debug.innerHTML = 'maxTouchPoints = ' + navigator.maxTouchPoints +
+            '<br />cores = ' + navigator.hardwareConcurrency 
     }
 
 
@@ -41,11 +55,11 @@ window.addEventListener('load', () => {
     })
 
     game.score.addEventListener('change',() => {
-        $score.innerHTML=game.score.value + '<br />' + game.high.value;
+        $score.innerHTML=`<p>${game.score.value}</p><p>${game.high.value}</p>`;
     })
 
     game.high.addEventListener('change',() => {
-        $score.innerHTML=game.score.value + '<br />' + game.high.value;
+        $score.innerHTML=`<p>${game.score.value}</p><p>${game.high.value}</p>`;
 
         let c = {high:game.high.value, controls:game.controls}
         Cookie.setCookie('_ps_pb',JSON.stringify(c));

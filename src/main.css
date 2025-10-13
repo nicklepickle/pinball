@@ -34,6 +34,10 @@ body {
     touch-action: none;
     width: 100%;
     max-width: 600px;
+    /*
+    height:100%;
+    max-height: 900px;
+    */
 }
 
 #app {
@@ -52,6 +56,10 @@ body {
     container-type: size;
 }
 
+#scoreboard p, #score-background p {
+    margin:0px;
+}
+
 #score-background {
     color:#030;
     z-index: 8888;
@@ -62,16 +70,15 @@ body {
     z-index: 9999;
 }
 
-#scoreboard div, #score-background div {
-    margin:6px;
+#scoreboard div, #score-background div  {
     width:50%;
     container-type: size;
     font-size:3.5cqw;
+    margin:6px;
 }
 
-#restart, #balls, #score-background p {
+#scoreboard div:last-child, #score-background div:last-child{
     text-align:right;
-    margin:0px;
 }
 
 #restart {
@@ -165,4 +172,13 @@ body {
     float:right;
     font-size:20px;
     cursor:pointer;
+}
+
+#debug {
+    z-index:999;
+    color:#FFF;
+    position:absolute;
+    top:60px;
+    left:6px;
+    font-family: monospace;
 }
