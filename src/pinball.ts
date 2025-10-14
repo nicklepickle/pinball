@@ -510,7 +510,10 @@ class PinBall {
         return bodies;
     }
 
-    run() {
+    run(debug: Boolean = false) {
+        if (debug) {
+            this.useCanvas = false;
+        }
         Runner.run(this.runner, this.engine);
         if (!this.useCanvas) {
             const render: Render = Render.create({

@@ -142,7 +142,7 @@ window.addEventListener('load', () => {
     })
 
 
-    game.run();
+    game.run(location.search.indexOf('debug') != -1);
     
 })
 
