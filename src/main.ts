@@ -6,7 +6,6 @@ window.addEventListener('load', () => {
     const $score: HTMLElement = document.getElementById('score') as HTMLElement;
     const $balls: HTMLElement = document.getElementById('balls') as HTMLElement;
     const $restart: HTMLElement = document.getElementById('restart') as HTMLElement;
-    //const $battery: HTMLElement = document.getElementById('battery') as HTMLElement;
     const $instructions: HTMLElement = document.getElementById('instructions') as HTMLElement;
     const preventContextMenu = (e2:Event) => {
         e2.preventDefault();
@@ -41,13 +40,26 @@ window.addEventListener('load', () => {
         
     }
 
+    game.useCanvas = location.search.indexOf('debug') == -1
     if (!game.useCanvas) {
         // show debug
         const $debug = document.getElementById('debug') as HTMLElement;
         $debug.innerHTML = 'maxTouchPoints = ' + navigator.maxTouchPoints +
-            '<br />cores = ' + navigator.hardwareConcurrency 
+            '<br />cores = ' + navigator.hardwareConcurrency +
+            '<div id="frame-info"></div>'
+        const $frameInfo = document.getElementById('frame-info') as HTMLElement;
+        game.onFrame = () => {
+            
+            let h = '';
+            for(let i=0; i<game.activeBalls.length; i++) {
+                h += 'batter level = ' + game.batteryLevel.value +
+                '<br />ball[' + i + '].velocity.x = ' + game.activeBalls[i].velocity.x.toFixed(3)
+                + '<br />ball[' + i + '].velocity.y = ' + game.activeBalls[i].velocity.y.toFixed(3)
+                + '<br />ball[' + i + '].angle = ' + game.activeBalls[i].angle.toFixed(3)
+            }
+            $frameInfo.innerHTML = h;
+        }
     }
-
 
 
     game.balls.addEventListener('change',() => {
@@ -76,22 +88,6 @@ window.addEventListener('load', () => {
             $restart.style.display = 'none'
         }
     })
-    /*
-    game.batteryLevel.addEventListener('change',() => {
-        let p =  game.batteryLevel.value/game.batteryMax;
-        $battery.style.borderTopWidth = (30 - (30 * p)).toString()+'px';
-        $battery.style.height = (30 * p).toString()+'px';
-
-        let r = Math.min(250, (250 * ((100 - (p * 100)) / 80)));
-        let g = Math.min(220, (240 * ((p * 100) / 40)));
-        let rgb = "RGB(" + r.toString() + "," + g.toString() + ",0)";
-
-        //console.log(p,rgb)
-
-        $battery.style.backgroundColor = rgb
-
-    })
-        */
 
     document.querySelector('#restart a')?.addEventListener('click', () => {
         game.restart();
@@ -142,7 +138,7 @@ window.addEventListener('load', () => {
     })
 
 
-    game.run(location.search.indexOf('debug') != -1);
+    game.run();
     
 })
 

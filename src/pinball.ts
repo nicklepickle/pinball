@@ -39,6 +39,7 @@ class PinBall {
     downTime: Date = new Date();
     forces: Force[] = []; // forces that need to be applied
     ballInit: Matter.Vector = {x: 572, y: 720}
+    onFrame?: () => void;
     
     // objects
     activeBalls: Body[] = [];
@@ -241,6 +242,10 @@ class PinBall {
 
             if (this.useCanvas) {
                 this.canvas.render(this)
+            }
+
+            if (this.onFrame) {
+                this.onFrame();
             }
         });
 
@@ -510,10 +515,7 @@ class PinBall {
         return bodies;
     }
 
-    run(debug: Boolean = false) {
-        if (debug) {
-            this.useCanvas = false;
-        }
+    run() {
         Runner.run(this.runner, this.engine);
         if (!this.useCanvas) {
             const render: Render = Render.create({
