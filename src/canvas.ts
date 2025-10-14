@@ -119,7 +119,7 @@ class Canvas {
                             let p =  game.batteryLevel.value/game.batteryMax;
                             let h2 = 30 - 30 * p;
 
-                            let r = Math.min(250, (250 * ((100 - (p * 100)) / 80)));
+                            let r = Math.min(250, (250 * ((100 - (p * 100)) / 40)));
                             let g = Math.min(220, (240 * ((p * 100) / 40)));
                             let rgb = "RGB(" + r.toString() + "," + g.toString() + ",0)";
 
